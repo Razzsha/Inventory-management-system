@@ -19,10 +19,12 @@
     "@angular/platform-browser-dynamic": "^16.2.0",
     "@angular/router": "^16.2.0",
     "@ctrl/tinycolor": "^4.2.0",
+    "file-saver": "^2.0.5",
     "ng-zorro-antd": "^16.2.2",
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.26.25",
     "tslib": "^2.3.0",
+    "xlsx": "^0.18.5",
     "zone.js": "~0.13.0"
   },
   "devDependencies": {

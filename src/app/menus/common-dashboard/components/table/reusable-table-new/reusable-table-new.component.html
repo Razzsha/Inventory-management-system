@@ -1,0 +1,211 @@
+<nz-row [nzGutter]="[16, 16]" nzJustify="space-between">
+  <nz-button-group class="view-toggle-group">
+    <button
+      nz-button
+      nzType="default"
+      [nzType]="viewMode === 'table' ? 'primary' : 'default'"
+      nzShape="round"
+      (click)="switchView('table')"
+    >
+      <i nz-icon nzType="table"></i>
+      Table
+    </button>
+
+    <button
+      nz-button
+      nzType="default"
+      [nzType]="viewMode === 'grid' ? 'primary' : 'default'"
+      nzShape="round"
+      (click)="switchView('grid')"
+    >
+      <i nz-icon nzType="appstore"></i>
+      Grid
+    </button>
+  </nz-button-group>
+  <div class="table-toolbar" *ngIf="showExportButton">
+    <button
+      type="button"
+      nz-button
+      nzType="primary"
+      class="excel-btn"
+      [nzLoading]="exporting"
+      [disabled]="loading || !total"
+      (click)="onExportClick('excel')"
+    >
+      <i nz-icon nzType="file-excel" *ngIf="!exporting"></i>
+      {{ exporting ? "Exporting..." : exportButtonText }}
+    </button>
+
+    <button
+      *ngIf="showCsvButton"
+      type="button"
+      nz-button
+      class="export-btn csv-btn"
+      [nzLoading]="exporting"
+      [disabled]="loading || !total"
+      (click)="onExportClick('csv')"
+    >
+      <i nz-icon nzType="file-text" *ngIf="!exporting"></i>
+      {{ exporting ? "Exporting..." : csvButtonText }}
+    </button>
+  </div>
+</nz-row>
+
+<nz-table
+  class="custom-nz-table"
+  *ngIf="viewMode === 'table'"
+  [nzSize]="size"
+  [nzData]="data"
+  [nzLoading]="loading"
+  [nzTotal]="total"
+  [nzPageSize]="pageSize"
+  [nzPageIndex]="pageIndex"
+  [nzShowPagination]="showPagination"
+  [nzShowSizeChanger]="showSizeChanger"
+  [nzFrontPagination]="frontPagination"
+  [nzPageSizeOptions]="pageSizeOptions"
+  [nzShowTotal]="showTotal ? totalTemplate : null"
+  [nzBordered]="bordered"
+  [nzScroll]="scroll"
+  [nzNoResult]="emptyTemplate || defaultEmpty"
+  (nzQueryParams)="onQueryParamsChange($event)"
+>
+  <thead>
+    <tr>
+      <th *ngIf="expandTemplate" nzWidth="40px"></th>
+
+      <th
+        *ngIf="showCheckbox"
+        nzWidth="50px"
+        [nzChecked]="checked"
+        [nzIndeterminate]="indeterminate"
+        (nzCheckedChange)="onAllChecked($event)"
+      ></th>
+
+      <th
+        *ngFor="let col of visibleColumns"
+        [nzSortFn]="col.sortable ? true : null"
+        [nzColumnKey]="col.key"
+        [nzWidth]="col.width || null"
+        [nzAlign]="col.align || 'left'"
+        [nzLeft]="col.fixed === 'left'"
+        [nzRight]="col.fixed === 'right'"
+        [nzEllipsis]="col.ellipsis || false"
+      >
+        <span [nz-tooltip]="col.tooltip || null">{{ col.title }}</span>
+      </th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <ng-container *ngFor="let row of data; let i = index">
+      <tr [class]="rowClassName(row, i)" (click)="onRowClick(row)">
+        <td
+          *ngIf="expandTemplate"
+          [nzExpand]="isExpanded(row)"
+          (nzExpandChange)="onExpandChange(row, $event)"
+        ></td>
+
+        <td
+          *ngIf="showCheckbox"
+          [nzChecked]="isChecked(row)"
+          (nzCheckedChange)="onItemChecked(row, $event)"
+          (click)="$event.stopPropagation()"
+        ></td>
+
+        <td
+          *ngFor="let col of visibleColumns"
+          [nzAlign]="col.align || 'left'"
+          [nzLeft]="col.fixed === 'left'"
+          [nzRight]="col.fixed === 'right'"
+          [nzEllipsis]="col.ellipsis || false"
+        >
+          <ng-container *ngIf="col.key === 'sn'; else templateCheck">
+            {{ (pageIndex - 1) * pageSize + i + 1 }}
+          </ng-container>
+
+          <ng-template #templateCheck>
+            <ng-container
+              *ngIf="templates && templates[col.key]; else defaultCell"
+            >
+              <ng-container
+                *ngTemplateOutlet="
+                  templates[col.key];
+                  context: {
+                    $implicit: row,
+                    row: row,
+                    value: resolveValue(row, col.key),
+                    index: i,
+                    column: col,
+                  }
+                "
+              >
+              </ng-container>
+            </ng-container>
+          </ng-template>
+
+          <ng-template #defaultCell>
+            {{ resolveValue(row, col.key) ?? "—" }}
+          </ng-template>
+        </td>
+      </tr>
+
+      <tr
+        *ngIf="expandTemplate && isExpanded(row)"
+        [nzExpand]="isExpanded(row)"
+      >
+        <ng-container
+          *ngTemplateOutlet="
+            expandTemplate;
+            context: { $implicit: row, row: row, index: i }
+          "
+        >
+        </ng-container>
+      </tr>
+    </ng-container>
+  </tbody>
+</nz-table>
+
+<ng-template #totalTemplate let-total let-range="range">
+  Showing {{ range[0] }}-{{ range[1] }} of {{ total }} records
+</ng-template>
+
+<div *ngIf="viewMode === 'grid' && enableGridView" class="grid-wrapper">
+  <div *ngIf="gridItemTemplate; else noGrid">
+    <nz-row [nzGutter]="[16, 16]">
+      <nz-col
+        *ngFor="let data of data"
+        [nzLg]="6"
+        [nzMd]="16"
+        [nzSm]="24"
+        [nzXs]="24"
+        [nzXl]="6"
+      >
+        <nz-card nzHoverable>
+          <ng-container
+            *ngTemplateOutlet="gridItemTemplate; context: { $implicit: data }"
+          ></ng-container>
+        </nz-card>
+      </nz-col>
+    </nz-row>
+  </div>
+</div>
+
+<ng-template #noGrid>
+  <div
+    style="
+      padding: 40px;
+      text-align: center;
+      font-size: 16px;
+      color: #999;
+      border: 1px dashed #ddd;
+      border-radius: 8px;
+    "
+  >
+    🚫 Grid View not implemented for this table.
+  </div>
+</ng-template>
+
+<ng-template #defaultEmpty>
+  <nz-empty [nzNotFoundContent]="noResultText"></nz-empty>
+</ng-template>
