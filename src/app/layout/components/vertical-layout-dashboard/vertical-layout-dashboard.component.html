@@ -1,0 +1,133 @@
+<nz-layout class="app-layout">
+  <div
+    class="sider-mask"
+    *ngIf="!isCollapsed"
+    (click)="isCollapsed = true"
+  ></div>
+
+  <nz-sider
+    nzCollapsible
+    [(nzCollapsed)]="isCollapsed"
+    [nzTrigger]="null"
+    [nzWidth]="240"
+    [nzCollapsedWidth]="68"
+    nzBreakpoint="lg"
+    class="app-sider"
+    [class.mobile-open]="!isCollapsed"
+  >
+    <div class="logo-area" [class.collapsed]="isCollapsed">
+      <div class="logo-wrapper">
+        <img
+          src="../../../../assets/logo/invenPilot.png"
+          class="logo-img"
+          alt="Inventory Pilot"
+        />
+
+        <span class="logo-label" *ngIf="!isCollapsed">
+          INVENTORY PILOT
+        </span>
+      </div>
+    </div>
+
+    <ul nz-menu nzTheme="dark" nzMode="inline">
+      <li class="menu-section-label" *ngIf="!isCollapsed">
+        MAIN
+      </li>
+
+      <li
+        nz-menu-item
+        nzMatchRouter
+        [routerLink]="['/common/common-dashboard']"
+      >
+        <span nz-icon nzType="home"></span>
+        <span>Home</span>
+      </li>
+
+      <li class="menu-section-label" *ngIf="!isCollapsed">
+       ITEMS
+      </li>
+
+      <li
+        nz-menu-item
+        nzMatchRouter
+        [routerLink]="['/common/categories']"
+      >
+        <span nz-icon nzType="categories"></span>
+        <span>categories</span>
+      </li>
+
+    </ul>
+  </nz-sider>
+
+  <nz-layout
+    class="right-layout"
+    [class.sidebar-collapsed]="isCollapsed"
+  >
+    <nz-header>
+      <div class="header-inner">
+        <div class="header-left">
+          <button
+            class="collapse-btn"
+            (click)="isCollapsed = !isCollapsed"
+            type="button"
+          >
+            <span
+              nz-icon
+              [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
+            ></span>
+          </button>
+
+          <div class="search-wrapper">
+            <span
+              nz-icon
+              nzType="search"
+              class="search-icon"
+            ></span>
+
+            <input
+              class="search-input"
+              type="text"
+              placeholder="Search anything..."
+            />
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="header-divider"></div>
+
+          <div class="user-pill">
+            <div class="user-avatar">A</div>
+            <span class="user-name">Admin</span>
+          </div>
+
+          <button
+            class="logout-btn"
+            (click)="logout()"
+            type="button"
+          >
+            <span nz-icon nzType="logout"></span>
+            <span class="logout-text">Logout</span>
+          </button>
+        </div>
+      </div>
+    </nz-header>
+
+    <nz-content>
+      <div class="breadcrumb-row">
+        <nz-breadcrumb nzSeparator=">">
+          <nz-breadcrumb-item>
+            <span nz-icon nzType="home"></span>
+          </nz-breadcrumb-item>
+
+          <nz-breadcrumb-item>
+            Dashboard
+          </nz-breadcrumb-item>
+        </nz-breadcrumb>
+      </div>
+
+      <div class="content-card">
+        <router-outlet></router-outlet>
+      </div>
+    </nz-content>
+  </nz-layout>
+</nz-layout>
