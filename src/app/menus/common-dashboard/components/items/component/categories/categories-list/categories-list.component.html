@@ -1,0 +1,87 @@
+<nz-card nzHoverable>
+  <form nz-form [formGroup]="filterFormStructure">
+    <nz-row [nzGutter]="[16, 16]" nzJustify="space-between" nzAlign="middle">
+      <nz-col [nzSpan]="8">
+        <input
+          nz-input
+          formControlName="search"
+          placeholder="Search category"
+        />
+      </nz-col>
+      <nz-col>
+        <button nz-button nzType="primary" (click)="openCreateDrawer()">
+          <span nz-icon nzType="plus"></span>
+          New Category
+        </button>
+      </nz-col>
+    </nz-row>
+  </form>
+</nz-card>
+
+<nz-card class="mt-3" nzHoverable>
+  <app-reusable-new-table
+    [columns]="columns"
+    [data]="data"
+    [loading]="loading"
+    [total]="total"
+    [pageSize]="pageSize"
+    [pageIndex]="pageIndex"
+    [templates]="templates"
+    [showExportButton]="false"
+    [showCsvButton]="false"
+    [defaultView]="'table'"
+    [enableGridView]="false"
+    (queryParamsChange)="onQueryParamsChange($event)"
+  >
+  </app-reusable-new-table>
+</nz-card>
+
+<ng-template #titleTpl let-row>
+  <a (click)="addProd(row)" style="cursor: pointer">
+    {{ row.name }}
+  </a>
+</ng-template>
+
+<ng-template #statusTpl let-row>
+  <nz-tag [nzColor]="row.isActive ? 'green' : 'red'">
+    {{ row.isActive ? "Active" : "Inactive" }}
+  </nz-tag>
+</ng-template>
+
+<ng-template #actionsTpl let-data>
+
+   <nz-col>
+      <h3 style="margin: 0 0 10px">
+        <a
+          [routerLink]="['/common/products', data.id, data.name]"
+          style="color: #188c88; cursor: pointer"
+        >
+          
+        </a>
+      </h3>
+    </nz-col>
+
+
+  <button
+    nz-button
+    nzType="text"
+    nzSize="small"
+    nz-tooltip
+    nzTooltipTitle="Edit"
+    (click)="openEditDrawer(data)"
+  >
+    <i nz-icon nzType="edit"></i>
+  </button>
+  &nbsp;
+  <button
+    nz-button
+    nz-tooltip
+    nzTooltipTitle="Delete"
+    nzType="text"
+    nzSize="small"
+    nzDanger
+    (click)="deleteCategory(data)"
+  >
+    <i nz-icon nzType="delete"></i>
+  </button>
+</ng-template>
