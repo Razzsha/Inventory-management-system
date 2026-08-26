@@ -1,0 +1,47 @@
+.grand-total-label {
+  color: rgba(0, 0, 0, 0.55);
+  margin-right: 8px;
+}
+
+.grand-total-value {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.price-group-card {
+  padding: 0;
+}
+
+.price-group-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.expand-toggle {
+  display: inline-flex;
+}
+
+.price-group-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.price-group-count {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 13px;
+}
+
+.price-group-subtotal {
+  margin-left: auto;
+  font-weight: 600;
+}
+
+.price-group-empty {
+  padding: 16px 0;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.35);
+  font-size: 13px;
+}

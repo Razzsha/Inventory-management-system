@@ -1,9 +1,5 @@
 <nz-layout class="app-layout">
-  <div
-    class="sider-mask"
-    *ngIf="!isCollapsed"
-    (click)="isCollapsed = true"
-  ></div>
+  <div class="sider-mask" *ngIf="!isCollapsed" (click)="isCollapsed = true"></div>
 
   <nz-sider
     nzCollapsible
@@ -22,73 +18,52 @@
           class="logo-img"
           alt="Inventory Pilot"
         />
-
-        <span class="logo-label" *ngIf="!isCollapsed">
-          INVENTORY PILOT
-        </span>
+        <span class="logo-label" *ngIf="!isCollapsed">INVENTORY PILOT</span>
       </div>
     </div>
 
-    <ul nz-menu nzTheme="dark" nzMode="inline">
-      <li class="menu-section-label" *ngIf="!isCollapsed">
-        MAIN
-      </li>
+    <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
+      <li class="menu-section-label" *ngIf="!isCollapsed">MAIN</li>
 
-      <li
-        nz-menu-item
-        nzMatchRouter
-        [routerLink]="['/common/common-dashboard']"
-      >
+      <li nz-menu-item nzMatchRouter [routerLink]="['/common/common-dashboard']">
         <span nz-icon nzType="home"></span>
         <span>Home</span>
       </li>
 
-      <li class="menu-section-label" *ngIf="!isCollapsed">
-       ITEMS
-      </li>
+      <!-- <li class="menu-section-label" *ngIf="!isCollapsed">ITEMS</li> -->
 
-      <li
-        nz-menu-item
-        nzMatchRouter
-        [routerLink]="['/common/categories']"
-      >
-        <span nz-icon nzType="appstore"></span>
-        <span>categories</span>
-      </li>
+      <li nz-submenu nzTitle="Items" nzIcon="appstore">
+        <ul>
+          <li nz-menu-item nzMatchRouter [routerLink]="['/common/categories']">
+            <span nz-icon nzType="folder"></span>
+            <span>Categories</span>
+          </li>
 
+          <li nz-menu-item nzMatchRouter [routerLink]="['/common/grpItem']">
+            <span nz-icon nzType="cluster"></span>
+            <span>Item Group</span>
+          </li>
+
+          <li nz-menu-item nzMatchRouter [routerLink]="['/common/price']">
+            <span nz-icon nzType="tag"></span>
+            <span>Price</span>
+          </li>
+        </ul>
+      </li>
     </ul>
   </nz-sider>
 
-  <nz-layout
-    class="right-layout"
-    [class.sidebar-collapsed]="isCollapsed"
-  >
+  <nz-layout class="right-layout" [class.sidebar-collapsed]="isCollapsed">
     <nz-header>
       <div class="header-inner">
         <div class="header-left">
-          <button
-            class="collapse-btn"
-            (click)="isCollapsed = !isCollapsed"
-            type="button"
-          >
-            <span
-              nz-icon
-              [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
-            ></span>
+          <button class="collapse-btn" (click)="isCollapsed = !isCollapsed" type="button">
+            <span nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></span>
           </button>
 
           <div class="search-wrapper">
-            <span
-              nz-icon
-              nzType="search"
-              class="search-icon"
-            ></span>
-
-            <input
-              class="search-input"
-              type="text"
-              placeholder="Search anything..."
-            />
+            <span nz-icon nzType="search" class="search-icon"></span>
+            <input class="search-input" type="text" placeholder="Search anything..." />
           </div>
         </div>
 
@@ -100,11 +75,7 @@
             <span class="user-name">Admin</span>
           </div>
 
-          <button
-            class="logout-btn"
-            (click)="logout()"
-            type="button"
-          >
+          <button class="logout-btn" (click)="logout()" type="button">
             <span nz-icon nzType="logout"></span>
             <span class="logout-text">Logout</span>
           </button>
@@ -118,10 +89,7 @@
           <nz-breadcrumb-item>
             <span nz-icon nzType="home"></span>
           </nz-breadcrumb-item>
-
-          <nz-breadcrumb-item>
-            Dashboard
-          </nz-breadcrumb-item>
+          <nz-breadcrumb-item>Dashboard</nz-breadcrumb-item>
         </nz-breadcrumb>
       </div>
 

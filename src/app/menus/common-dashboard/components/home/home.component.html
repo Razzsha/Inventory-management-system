@@ -1,5 +1,4 @@
 <div>
-  <!-- Dashboard Header -->
   <nz-row [nzGutter]="[16, 16]" nzAlign="middle" nzJustify="space-between">
     <nz-col [nzXs]="24" [nzMd]="16">
       <h2 nz-typography>Inventory Dashboard</h2>
@@ -7,28 +6,19 @@
         Overview of your inventory and business activities
       </p>
     </nz-col>
-
-    <nz-col [nzXs]="24" [nzMd]="8">
-      <button nz-button nzType="primary" nzBlock>
-        <i nz-icon nzType="plus"></i>
-        Add Item
-      </button>
-    </nz-col>
   </nz-row>
 
   <br />
 
-  <!-- Statistics -->
   <nz-row [nzGutter]="[16, 16]">
     <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
       <nz-card>
         <nz-statistic
           nzTitle="Total Items"
-          [nzValue]="128"
+          [nzValue]="totalItems"
           [nzPrefix]="itemIcon"
         >
         </nz-statistic>
-
         <ng-template #itemIcon>
           <i nz-icon nzType="appstore"></i>
         </ng-template>
@@ -39,11 +29,10 @@
       <nz-card>
         <nz-statistic
           nzTitle="Categories"
-          [nzValue]="8"
+          [nzValue]="totalCategories"
           [nzPrefix]="categoryIcon"
         >
         </nz-statistic>
-
         <ng-template #categoryIcon>
           <i nz-icon nzType="folder"></i>
         </ng-template>
@@ -53,12 +42,11 @@
     <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
       <nz-card>
         <nz-statistic
-          nzTitle="Low Stock"
-          [nzValue]="12"
+          nzTitle="Inactive Items"
+          [nzValue]="inactiveCount"
           [nzPrefix]="warningIcon"
         >
         </nz-statistic>
-
         <ng-template #warningIcon>
           <i nz-icon nzType="warning"></i>
         </ng-template>
@@ -68,22 +56,18 @@
     <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
       <nz-card>
         <nz-statistic
-          nzTitle="Customers"
-          [nzValue]="45"
-          [nzPrefix]="customerIcon"
+          nzTitle="Total Inventory Value"
+          [nzValue]="totalInventoryValue"
+          nzPrefix="Rs."
+          [nzValueStyle]="{ fontSize: '20px' }"
         >
         </nz-statistic>
-
-        <ng-template #customerIcon>
-          <i nz-icon nzType="team"></i>
-        </ng-template>
       </nz-card>
     </nz-col>
   </nz-row>
 
   <br />
 
-  <!-- Inventory + Stock -->
   <nz-row [nzGutter]="[16, 16]">
     <!-- Inventory Table -->
     <nz-col [nzXs]="24" [nzLg]="16">
@@ -112,176 +96,50 @@
           <thead>
             <tr>
               <th>SKU</th>
-
               <th>Item</th>
-
               <th>Category</th>
-
-              <th>Stock</th>
-
-              <th>Price</th>
-
+              <th nzAlign="right">Price</th>
               <th>Status</th>
             </tr>
           </thead>
 
           <tbody>
             <tr *ngFor="let item of inventoryTable.data">
+              <td>{{ item.sku }}</td>
+              <td><strong>{{ item.name }}</strong></td>
+              <td>{{ item.categoryName }}</td>
+              <td nzAlign="right">Rs. {{ item.price }}</td>
               <td>
-                {{ item.sku }}
-              </td>
-
-              <td>
-                <strong>
-                  {{ item.name }}
-                </strong>
-              </td>
-
-              <td>
-                {{ item.category }}
-              </td>
-
-              <td>
-                {{ item.stock }}
-              </td>
-
-              <td>Rs. {{ item.price }}</td>
-
-              <td>
-                <nz-tag
-                  [nzColor]="item.status === 'In Stock' ? 'green' : 'orange'"
-                >
-                  {{ item.status }}
+                <nz-tag [nzColor]="item.status ? 'green' : 'red'">
+                  {{ item.status ? 'Active' : 'Inactive' }}
                 </nz-tag>
               </td>
             </tr>
           </tbody>
         </nz-table>
+
+        <nz-empty
+          *ngIf="!filteredItems.length"
+          nzNotFoundContent="No items match your search"
+        ></nz-empty>
       </nz-card>
     </nz-col>
 
-    <!-- Stock Status -->
     <nz-col [nzXs]="24" [nzLg]="8">
-      <nz-card nzTitle="Stock Status">
-        <!-- Cold Drinks -->
-        <nz-row nzJustify="space-between">
-          <nz-col>
-            <span>Cold Drinks</span>
-          </nz-col>
+      <nz-card nzTitle="Items by Category">
+        <ng-container *ngFor="let cat of categoryBreakdown; let last = last">
+          <nz-row nzJustify="space-between">
+            <nz-col><span>{{ cat.name }}</span></nz-col>
+            <nz-col><strong>{{ cat.count }} items</strong></nz-col>
+          </nz-row>
+          <nz-progress [nzPercent]="cat.percent"></nz-progress>
+          <br *ngIf="!last" />
+        </ng-container>
 
-          <nz-col>
-            <strong>78%</strong>
-          </nz-col>
-        </nz-row>
-
-        <nz-progress [nzPercent]="78" nzStatus="active"> </nz-progress>
-
-        <br />
-
-        <!-- Water -->
-        <nz-row nzJustify="space-between">
-          <nz-col>
-            <span>Water</span>
-          </nz-col>
-
-          <nz-col>
-            <strong>65%</strong>
-          </nz-col>
-        </nz-row>
-
-        <nz-progress [nzPercent]="65"> </nz-progress>
-
-        <br />
-
-        <!-- Juice -->
-        <nz-row nzJustify="space-between">
-          <nz-col>
-            <span>Juice</span>
-          </nz-col>
-
-          <nz-col>
-            <strong>42%</strong>
-          </nz-col>
-        </nz-row>
-
-        <nz-progress [nzPercent]="42" nzStatus="active"> </nz-progress>
-
-        <br />
-
-        <!-- Energy Drinks -->
-        <nz-row nzJustify="space-between">
-          <nz-col>
-            <span>Energy Drinks</span>
-          </nz-col>
-
-          <nz-col>
-            <strong>25%</strong>
-          </nz-col>
-        </nz-row>
-
-        <nz-progress [nzPercent]="25" nzStatus="exception"> </nz-progress>
-      </nz-card>
-    </nz-col>
-  </nz-row>
-
-  <br />
-
-  <!-- Recent Sales + Activities -->
-  <nz-row [nzGutter]="[16, 16]">
-    <!-- Recent Sales -->
-    <nz-col [nzXs]="24" [nzMd]="12">
-      <nz-card nzTitle="Recent Sales">
-        <nz-list nzSize="small">
-          <nz-list-item>
-            <nz-list-item-meta
-              nzTitle="Coca Cola 500ml"
-              nzDescription="5 items"
-            >
-            </nz-list-item-meta>
-
-            <strong> Rs. 400 </strong>
-          </nz-list-item>
-
-          <nz-list-item>
-            <nz-list-item-meta nzTitle="Pepsi 500ml" nzDescription="10 items">
-            </nz-list-item-meta>
-
-            <strong> Rs. 800 </strong>
-          </nz-list-item>
-
-          <nz-list-item>
-            <nz-list-item-meta nzTitle="Sprite 500ml" nzDescription="4 items">
-            </nz-list-item-meta>
-
-            <strong> Rs. 320 </strong>
-          </nz-list-item>
-        </nz-list>
-      </nz-card>
-    </nz-col>
-
-    <!-- Recent Activities -->
-    <nz-col [nzXs]="24" [nzMd]="12">
-      <nz-card nzTitle="Recent Activities">
-        <nz-timeline>
-          <nz-timeline-item>
-            New item
-            <strong>Coca Cola 500ml</strong>
-            added
-          </nz-timeline-item>
-
-          <nz-timeline-item>
-            Stock updated for
-            <strong>Pepsi 500ml</strong>
-          </nz-timeline-item>
-
-          <nz-timeline-item>
-            New category
-            <strong>Cold Drinks</strong>
-            created
-          </nz-timeline-item>
-
-          <nz-timeline-item> New customer registered </nz-timeline-item>
-        </nz-timeline>
+        <nz-empty
+          *ngIf="!categoryBreakdown.length"
+          nzNotFoundContent="No categories yet"
+        ></nz-empty>
       </nz-card>
     </nz-col>
   </nz-row>

@@ -1,3 +1,63 @@
-<p>
-  price-list works!
-</p>
+<nz-card nzHoverable>
+  <nz-row [nzGutter]="[16, 16]" nzJustify="space-between" nzAlign="middle">
+    <nz-col [nzSpan]="8">
+      <form nz-form [formGroup]="filterFormStructure">
+        <input
+          nz-input
+          formControlName="search"
+          placeholder="Search by product name or SKU"
+        />
+      </form>
+    </nz-col>
+    <nz-col>
+      <span class="grand-total-label">Total Inventory Value:</span>
+      <span class="grand-total-value">Rs. {{ grandTotal | number: '1.2-2' }}</span>
+    </nz-col>
+  </nz-row>
+</nz-card>
+
+<nz-card
+  class="mt-3 price-group-card"
+  nzHoverable
+  *ngFor="let group of priceGroups"
+>
+  <div class="price-group-header" (click)="toggleExpand(group.id)">
+    <span class="expand-toggle">
+      <i nz-icon [nzType]="isExpanded(group.id) ? 'caret-down' : 'caret-right'"></i>
+    </span>
+    <span class="price-group-name">{{ group.name }}</span>
+    <span class="price-group-count">{{ group.products.length }} items</span>
+    <span class="price-group-subtotal">Rs. {{ group.totalValue | number: '1.2-2' }}</span>
+  </div>
+
+  <nz-table
+    *ngIf="isExpanded(group.id)"
+    [nzData]="group.products"
+    [nzShowPagination]="false"
+    class="mt-2"
+  >
+    <thead>
+      <tr>
+        <th>Product Name</th>
+        <th>SKU</th>
+        <th nzAlign="right">Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let product of group.products">
+        <td>{{ product.name }}</td>
+        <td>{{ product.sku }}</td>
+        <td nzAlign="right">Rs. {{ product.price | number: '1.2-2' }}</td>
+      </tr>
+    </tbody>
+  </nz-table>
+
+  <div class="price-group-empty" *ngIf="isExpanded(group.id) && !group.products.length">
+    No products in this category
+  </div>
+</nz-card>
+
+<nz-empty
+  *ngIf="!priceGroups.length"
+  nzNotFoundContent="No products match your search"
+></nz-empty>

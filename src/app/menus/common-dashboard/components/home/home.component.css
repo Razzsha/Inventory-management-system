@@ -1,0 +1,203 @@
+:host {
+  display: block;
+  padding: 24px;
+  background: #f8fafc;
+  min-height: 100vh;
+  color: #1e293b;
+}
+
+/* Header */
+h2[nz-typography] {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+p[nz-typography] {
+  margin: 5px 0 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+/* All cards */
+nz-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+nz-card:hover {
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.07);
+}
+
+/* Statistic cards */
+nz-statistic {
+  display: block;
+  padding: 4px 0;
+}
+
+nz-statistic ::ng-deep .ant-statistic-title {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+nz-statistic ::ng-deep .ant-statistic-content {
+  color: #0f172a;
+  font-size: 25px;
+  font-weight: 700;
+}
+
+nz-statistic ::ng-deep .ant-statistic-content-prefix {
+  color: #2563eb;
+  margin-right: 9px;
+  font-size: 19px;
+}
+
+/* Different statistic colors */
+nz-col:nth-child(1) nz-card {
+  border-top: 3px solid #2563eb;
+}
+
+nz-col:nth-child(2) nz-card {
+  border-top: 3px solid #14b8a6;
+}
+
+nz-col:nth-child(3) nz-card {
+  border-top: 3px solid #ef4444;
+}
+
+nz-col:nth-child(4) nz-card {
+  border-top: 3px solid #2563eb;
+}
+
+/* Card headings */
+::ng-deep .ant-card-head {
+  border-bottom: 1px solid #e2e8f0;
+  min-height: 52px;
+}
+
+::ng-deep .ant-card-head-title {
+  font-size: 16px;
+  font-weight: 650;
+  color: #0f172a;
+}
+
+/* Search box */
+nz-input-group {
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  height: 40px;
+  transition: all 0.2s ease;
+}
+
+nz-input-group:hover {
+  border-color: #2563eb;
+}
+
+nz-input-group:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+input[nz-input] {
+  font-size: 14px;
+}
+
+/* Remove excessive form spacing */
+nz-form-item {
+  margin-bottom: 16px;
+}
+
+/* Table */
+::ng-deep .ant-table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+::ng-deep .ant-table-thead > tr > th {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+::ng-deep .ant-table-tbody > tr > td {
+  color: #475569;
+  font-size: 13px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+::ng-deep .ant-table-tbody > tr:hover > td {
+  background: #eff6ff;
+}
+
+::ng-deep .ant-table-tbody strong {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* Status tags */
+::ng-deep .ant-tag {
+  border: none;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Category section */
+nz-progress {
+  margin-top: 7px;
+}
+
+::ng-deep .ant-progress-bg {
+  background: #2563eb;
+}
+
+::ng-deep .ant-progress-inner {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+nz-row nz-col span {
+  font-size: 13px;
+  color: #475569;
+}
+
+nz-row nz-col strong {
+  color: #0f172a;
+  font-size: 13px;
+}
+
+/* Empty state */
+::ng-deep .ant-empty {
+  padding: 25px 0;
+}
+
+::ng-deep .ant-empty-description {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  :host {
+    padding: 16px;
+  }
+
+  h2[nz-typography] {
+    font-size: 22px;
+  }
+
+  ::ng-deep .ant-card-head-title {
+    font-size: 15px;
+  }
+}

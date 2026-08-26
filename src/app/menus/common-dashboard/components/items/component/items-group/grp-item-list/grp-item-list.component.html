@@ -1,3 +1,96 @@
-<p>
-  grp-item-list works!
-</p>
+<nz-card nzHoverable>
+  <form nz-form [formGroup]="filterFormStructure">
+    <nz-row [nzGutter]="[16, 16]" nzJustify="space-between" nzAlign="middle">
+      <nz-col [nzSpan]="8">
+        <input
+          nz-input
+          formControlName="search"
+          placeholder="Search groups"
+        />
+      </nz-col>
+      <nz-col>
+        <button nz-button nzType="primary" (click)="openCreateDrawer()">
+          <span nz-icon nzType="plus"></span>
+          New Item Group
+        </button>
+      </nz-col>
+    </nz-row>
+  </form>
+</nz-card>
+
+<nz-card class="mt-3" nzHoverable>
+  <nz-table #groupTable [nzData]="filteredGroups" [nzShowPagination]="filteredGroups.length > 10">
+    <thead>
+      <tr>
+        <th nzWidth="40px"></th>
+        <th>Group Name</th>
+        <th>Description</th>
+        <th nzWidth="100px">Status</th>
+        <th nzWidth="80px">Items</th>
+        <th nzWidth="100px" nzAlign="center">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let group of groupTable.data">
+        <tr>
+          <td>
+            <span
+              class="expand-toggle"
+              (click)="toggleExpand(group.id)"
+            >
+              <i nz-icon [nzType]="isExpanded(group.id) ? 'caret-down' : 'caret-right'"></i>
+            </span>
+          </td>
+          <td>{{ group.name }}</td>
+          <td>{{ group.description || '-' }}</td>
+          <td>
+            <nz-tag [nzColor]="group.status ? 'green' : 'red'">
+              {{ group.status ? 'Active' : 'Inactive' }}
+            </nz-tag>
+          </td>
+          <td>{{ productsFor(group.id).length }}</td>
+          <td nzAlign="center">
+            <button
+              nz-button
+              nzType="text"
+              nzSize="small"
+              nz-tooltip
+              nzTooltipTitle="Edit"
+              (click)="openEditDrawer(group)"
+            >
+              <i nz-icon nzType="edit"></i>
+            </button>
+            <button
+              nz-button
+              nzType="text"
+              nzSize="small"
+              nzDanger
+              nz-tooltip
+              nzTooltipTitle="Delete"
+              (click)="deleteGroup(group)"
+            >
+              <i nz-icon nzType="delete"></i>
+            </button>
+          </td>
+        </tr>
+        <tr [nzExpand]="isExpanded(group.id)">
+          <ng-container *ngIf="productsFor(group.id).length; else noProducts">
+            <div class="expanded-products">
+              <div class="expanded-product-row" *ngFor="let product of productsFor(group.id)">
+                <span class="expanded-product-name">{{ product.name }}</span>
+                <span class="expanded-product-sku">SKU: {{ product.sku }}</span>
+                <span class="expanded-product-price">Rs. {{ product.price }}</span>
+                <nz-tag [nzColor]="product.status ? 'green' : 'red'">
+                  {{ product.status ? 'Active' : 'Inactive' }}
+                </nz-tag>
+              </div>
+            </div>
+          </ng-container>
+          <ng-template #noProducts>
+            <div class="expanded-empty">No products in this group yet</div>
+          </ng-template>
+        </tr>
+      </ng-container>
+    </tbody>
+  </nz-table>
+</nz-card>

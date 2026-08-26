@@ -1,3 +1,86 @@
-<p>
-  create-product works!
-</p>
+<form nz-form [formGroup]="form" (ngSubmit)="submit()">
+  <nz-form-item>
+    <nz-form-label nzRequired>Item Name</nz-form-label>
+    <nz-form-control nzErrorTip="Name is required">
+      <input nz-input formControlName="name" placeholder="e.g. Coca Cola 500ml" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Item SKU</nz-form-label>
+    <nz-form-control nzErrorTip="SKU is required">
+      <input nz-input formControlName="sku" placeholder="e.g. CD-002" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Category</nz-form-label>
+    <nz-form-control nzErrorTip="Category is required">
+      <!-- Locked to the category page you opened this from, in create mode -->
+      <nz-select
+        *ngIf="mode === 'edit' || defaultCategoryId == null; else lockedCategory"
+        formControlName="categoryId"
+        nzPlaceHolder="Select category"
+      >
+        <nz-option
+          *ngFor="let opt of categoryOptions"
+          [nzLabel]="opt.label"
+          [nzValue]="opt.value"
+        ></nz-option>
+      </nz-select>
+      <ng-template #lockedCategory>
+        <input nz-input [value]="selectedCategoryLabel" disabled />
+      </ng-template>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Type</nz-form-label>
+    <nz-form-control nzErrorTip="Type is required">
+      <nz-select formControlName="type" nzPlaceHolder="Select type">
+        <nz-option
+          *ngFor="let opt of typeOptions"
+          [nzLabel]="opt.label"
+          [nzValue]="opt.value"
+        ></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label>Description</nz-form-label>
+    <nz-form-control>
+      <textarea
+        nz-input
+        formControlName="description"
+        rows="4"
+        placeholder="Optional description"
+      ></textarea>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Price</nz-form-label>
+    <nz-form-control nzErrorTip="Price is required">
+      <nz-input-number
+        formControlName="price"
+        [nzMin]="0"
+        style="width: 100%"
+      ></nz-input-number>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label>Status</nz-form-label>
+    <nz-form-control>
+      <nz-switch formControlName="status"></nz-switch>
+    </nz-form-control>
+  </nz-form-item>
+
+  <div class="drawer-footer d-flex justify-content-end">
+    <button nz-button type="button" (click)="cancel()" class="mr-2">Cancel</button>
+    <button nz-button nzType="primary" type="submit" nzSpaceItem [nzLoading]="submitting">
+      {{ mode === 'edit' ? 'Update' : 'Create' }}
+    </button>
+  </div>
+</form>

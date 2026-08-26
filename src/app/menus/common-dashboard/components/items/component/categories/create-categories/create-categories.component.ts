@@ -1,15 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NzDrawerRef } from 'ng-zorro-antd/drawer';
-
-export interface CategoryFormResult {
-  success: boolean;
-  data?: {
-    name: string;
-    description: string;
-    isActive: boolean;
-  };
-}
+import { CategoryFormResult } from 'src/app/menus/common-dashboard/models/categoryFormResult';
 
 @Component({
   selector: 'app-create-categories',
@@ -23,12 +15,21 @@ export class CreateCategoriesComponent implements OnInit {
   form!: FormGroup;
   submitting = false;
 
-  constructor(private fb: FormBuilder, private drawerRef: NzDrawerRef<CategoryFormResult>) {}
+  constructor(
+    private fb: FormBuilder,
+    private drawerRef: NzDrawerRef<CategoryFormResult>,
+  ) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      name: [this.category?.name ?? '', [Validators.required, Validators.maxLength(100)]],
-      description: [this.category?.description ?? '', [Validators.maxLength(500)]],
+      name: [
+        this.category?.name ?? '',
+        [Validators.required, Validators.maxLength(100)],
+      ],
+      description: [
+        this.category?.description ?? '',
+        [Validators.maxLength(500)],
+      ],
       isActive: [this.category?.isActive ?? true],
     });
   }
@@ -40,7 +41,6 @@ export class CreateCategoriesComponent implements OnInit {
     }
 
     this.submitting = true;
-    // static-data mode: no API call, just hand data back to parent
     setTimeout(() => {
       this.submitting = false;
       this.drawerRef.close({ success: true, data: this.form.value });
