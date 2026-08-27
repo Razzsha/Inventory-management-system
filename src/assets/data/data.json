@@ -1,0 +1,65 @@
+{
+  "groups": [
+    { "id": 1, "name": "Cold Drinks", "description": "Beverages served cold", "status": true },
+    { "id": 2, "name": "Snacks", "description": "Packaged snack items", "status": true },
+    { "id": 3, "name": "Dairy", "description": "Milk and dairy products", "status": true }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "Coca Cola 250ml",
+      "sku": "cd-001",
+      "categoryId": 1,
+      "type": "unit",
+      "description": "Coca Cola 250ml bottle",
+      "price": 100,
+      "status": true
+    },
+    {
+      "id": 2,
+      "name": "Coca Cola 500ml",
+      "sku": "cd-002",
+      "categoryId": 1,
+      "type": "unit",
+      "description": "Coca Cola 500ml bottle",
+      "price": 200,
+      "status": false
+    },
+    {
+      "id": 3,
+      "name": "Lays Classic",
+      "sku": "sn-001",
+      "categoryId": 2,
+      "type": "unit",
+      "description": "Lays classic salted 50g",
+      "price": 30,
+      "status": true
+    },
+    {
+      "id": 4,
+      "name": "Amul Milk 500ml",
+      "sku": "dy-001",
+      "categoryId": 3,
+      "type": "unit",
+      "description": "Amul toned milk 500ml",
+      "price": 35,
+      "status": true
+    }
+  ],
+  "stockTransactions": [
+    { "id": 1, "productId": 1, "type": "purchase", "quantity": 150, "reference": "PO-1001", "note": "Initial stock", "createdAt": "2026-08-01T09:00:00Z" },
+    { "id": 2, "productId": 1, "type": "sale", "quantity": -30, "reference": "INV-2001", "note": "", "createdAt": "2026-08-10T14:20:00Z" },
+    { "id": 3, "productId": 2, "type": "purchase", "quantity": 40, "reference": "PO-1002", "note": "Initial stock", "createdAt": "2026-08-01T09:00:00Z" },
+    { "id": 4, "productId": 2, "type": "sale", "quantity": -35, "reference": "INV-2002", "note": "", "createdAt": "2026-08-15T11:00:00Z" },
+    { "id": 5, "productId": 3, "type": "purchase", "quantity": 200, "reference": "PO-1003", "note": "Initial stock", "createdAt": "2026-08-01T09:00:00Z" },
+    { "id": 6, "productId": 3, "type": "sale", "quantity": -60, "reference": "INV-2003", "note": "", "createdAt": "2026-08-18T16:45:00Z" },
+    { "id": 7, "productId": 4, "type": "purchase", "quantity": 80, "reference": "PO-1004", "note": "Initial stock", "createdAt": "2026-08-01T09:00:00Z" },
+    { "id": 8, "productId": 4, "type": "adjustment", "quantity": -5, "reference": "", "note": "Damaged in storage", "createdAt": "2026-08-20T08:15:00Z" }
+  ],
+  "reorderLevels": {
+    "1": 50,
+    "2": 20,
+    "3": 40,
+    "4": 15
+  }
+}

@@ -1,5 +1,9 @@
 <nz-layout class="app-layout">
-  <div class="sider-mask" *ngIf="!isCollapsed" (click)="isCollapsed = true"></div>
+  <div
+    class="sider-mask"
+    *ngIf="!isCollapsed"
+    (click)="isCollapsed = true"
+  ></div>
 
   <nz-sider
     nzCollapsible
@@ -22,10 +26,19 @@
       </div>
     </div>
 
-    <ul nz-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
+    <ul
+      nz-menu
+      nzTheme="dark"
+      nzMode="inline"
+      [nzInlineCollapsed]="isCollapsed"
+    >
       <li class="menu-section-label" *ngIf="!isCollapsed">MAIN</li>
 
-      <li nz-menu-item nzMatchRouter [routerLink]="['/common/common-dashboard']">
+      <li
+        nz-menu-item
+        nzMatchRouter
+        [routerLink]="['/common/common-dashboard']"
+      >
         <span nz-icon nzType="home"></span>
         <span>Home</span>
       </li>
@@ -50,6 +63,22 @@
           </li>
         </ul>
       </li>
+      <li nz-submenu nzTitle="Inventory" nzIcon="inbox">
+        <ul>
+          <li
+            nz-menu-item
+            nzMatchRouter
+            [routerLink]="['/common/inventorylist']"
+          >
+            <span nz-icon nzType="unordered-list"></span>
+            <span>Inventory List</span>
+          </li>
+          <!-- <li nz-menu-item nzMatchRouter [routerLink]="['/common/stock-adjustment']">
+            <span nz-icon nzType="swap"></span>
+            <span>Stock Adjustment</span>
+          </li> -->
+        </ul>
+      </li>
     </ul>
   </nz-sider>
 
@@ -57,13 +86,24 @@
     <nz-header>
       <div class="header-inner">
         <div class="header-left">
-          <button class="collapse-btn" (click)="isCollapsed = !isCollapsed" type="button">
-            <span nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></span>
+          <button
+            class="collapse-btn"
+            (click)="isCollapsed = !isCollapsed"
+            type="button"
+          >
+            <span
+              nz-icon
+              [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
+            ></span>
           </button>
 
           <div class="search-wrapper">
             <span nz-icon nzType="search" class="search-icon"></span>
-            <input class="search-input" type="text" placeholder="Search anything..." />
+            <input
+              class="search-input"
+              type="text"
+              placeholder="Search anything..."
+            />
           </div>
         </div>
 

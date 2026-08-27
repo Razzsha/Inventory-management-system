@@ -1,4 +1,5 @@
 <div>
+  <!-- Dashboard Header -->
   <nz-row [nzGutter]="[16, 16]" nzAlign="middle" nzJustify="space-between">
     <nz-col [nzXs]="24" [nzMd]="16">
       <h2 nz-typography>Inventory Dashboard</h2>
@@ -10,46 +11,31 @@
 
   <br />
 
+  <!-- Statistics -->
   <nz-row [nzGutter]="[16, 16]">
     <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
       <nz-card>
-        <nz-statistic
-          nzTitle="Total Items"
-          [nzValue]="totalItems"
-          [nzPrefix]="itemIcon"
-        >
-        </nz-statistic>
-        <ng-template #itemIcon>
-          <i nz-icon nzType="appstore"></i>
-        </ng-template>
+        <nz-statistic nzTitle="Total Items" [nzValue]="totalItems" [nzPrefix]="itemIcon"></nz-statistic>
+        <ng-template #itemIcon><i nz-icon nzType="appstore"></i></ng-template>
+      </nz-card>
+    </nz-col>
+
+    <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
+      <nz-card>
+        <nz-statistic nzTitle="Categories" [nzValue]="totalCategories" [nzPrefix]="categoryIcon"></nz-statistic>
+        <ng-template #categoryIcon><i nz-icon nzType="folder"></i></ng-template>
       </nz-card>
     </nz-col>
 
     <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
       <nz-card>
         <nz-statistic
-          nzTitle="Categories"
-          [nzValue]="totalCategories"
-          [nzPrefix]="categoryIcon"
-        >
-        </nz-statistic>
-        <ng-template #categoryIcon>
-          <i nz-icon nzType="folder"></i>
-        </ng-template>
-      </nz-card>
-    </nz-col>
-
-    <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="6">
-      <nz-card>
-        <nz-statistic
-          nzTitle="Inactive Items"
-          [nzValue]="inactiveCount"
+          nzTitle="Low Stock"
+          [nzValue]="lowStockCount"
           [nzPrefix]="warningIcon"
-        >
-        </nz-statistic>
-        <ng-template #warningIcon>
-          <i nz-icon nzType="warning"></i>
-        </ng-template>
+          [nzValueStyle]="{ color: lowStockCount > 0 ? '#dc2626' : undefined }"
+        ></nz-statistic>
+        <ng-template #warningIcon><i nz-icon nzType="warning"></i></ng-template>
       </nz-card>
     </nz-col>
 
@@ -60,27 +46,22 @@
           [nzValue]="totalInventoryValue"
           nzPrefix="Rs."
           [nzValueStyle]="{ fontSize: '20px' }"
-        >
-        </nz-statistic>
+        ></nz-statistic>
       </nz-card>
     </nz-col>
   </nz-row>
 
   <br />
 
+  <!-- Inventory + Category Breakdown -->
   <nz-row [nzGutter]="[16, 16]">
-    <!-- Inventory Table -->
     <nz-col [nzXs]="24" [nzLg]="16">
       <nz-card nzTitle="Inventory Overview">
         <form nz-form [formGroup]="filterForm">
           <nz-form-item>
             <nz-form-control>
               <nz-input-group nzPrefixIcon="search">
-                <input
-                  nz-input
-                  formControlName="search"
-                  placeholder="Search item, SKU or category"
-                />
+                <input nz-input formControlName="search" placeholder="Search item, SKU or category" />
               </nz-input-group>
             </nz-form-control>
           </nz-form-item>
@@ -102,7 +83,6 @@
               <th>Status</th>
             </tr>
           </thead>
-
           <tbody>
             <tr *ngFor="let item of inventoryTable.data">
               <td>{{ item.sku }}</td>
@@ -118,10 +98,7 @@
           </tbody>
         </nz-table>
 
-        <nz-empty
-          *ngIf="!filteredItems.length"
-          nzNotFoundContent="No items match your search"
-        ></nz-empty>
+        <nz-empty *ngIf="!filteredItems.length" nzNotFoundContent="No items match your search"></nz-empty>
       </nz-card>
     </nz-col>
 
@@ -136,10 +113,7 @@
           <br *ngIf="!last" />
         </ng-container>
 
-        <nz-empty
-          *ngIf="!categoryBreakdown.length"
-          nzNotFoundContent="No categories yet"
-        ></nz-empty>
+        <nz-empty *ngIf="!categoryBreakdown.length" nzNotFoundContent="No categories yet"></nz-empty>
       </nz-card>
     </nz-col>
   </nz-row>

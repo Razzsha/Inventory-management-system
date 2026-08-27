@@ -1,0 +1,83 @@
+<form nz-form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="adjustment-context">
+    <div class="context-name">{{ productName }}</div>
+    <div class="context-current">Current stock: <strong>{{ currentQuantity }}</strong></div>
+  </div>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Transaction Type</nz-form-label>
+    <nz-form-control>
+      <nz-select formControlName="type" style="width: 100%">
+        <nz-option
+          *ngFor="let opt of typeOptions"
+          [nzLabel]="opt.label"
+          [nzValue]="opt.value"
+        ></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item *ngIf="needsDirectionPicker">
+    <nz-form-label nzRequired>Direction</nz-form-label>
+    <nz-form-control>
+      <nz-radio-group formControlName="direction">
+        <label nz-radio-button *ngFor="let opt of directionOptions" [nzValue]="opt.value">
+          {{ opt.label }}
+        </label>
+      </nz-radio-group>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item *ngIf="!needsDirectionPicker">
+    <nz-form-label>Direction</nz-form-label>
+    <nz-form-control>
+      <nz-tag [nzColor]="effectiveDirection === 'in' ? 'green' : 'red'">
+        {{ effectiveDirection === 'in' ? 'Stock In (+)' : 'Stock Out (−)' }}
+      </nz-tag>
+      <span class="direction-hint">— determined automatically by transaction type</span>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Quantity</nz-form-label>
+    <nz-form-control
+      [nzErrorTip]="
+        form.get('amount')?.errors?.['exceedsStock']
+          ? 'Cannot remove more than current stock'
+          : 'Quantity is required and must be at least 1'
+      "
+    >
+      <nz-input-number formControlName="amount" [nzMin]="1" style="width: 100%"></nz-input-number>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label [nzRequired]="config.referenceRequired">{{ config.referenceLabel }}</nz-form-label>
+    <nz-form-control [nzErrorTip]="config.referenceLabel + ' is required for this transaction type'">
+      <input nz-input formControlName="reference" [placeholder]="config.referenceLabel" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label [nzRequired]="config.noteRequired">Note</nz-form-label>
+    <nz-form-control nzErrorTip="A reason is required for the audit trail">
+      <textarea
+        nz-input
+        formControlName="note"
+        rows="3"
+        placeholder="Optional details for this transaction"
+      ></textarea>
+    </nz-form-control>
+  </nz-form-item>
+
+  <div class="resulting-stock">
+    Resulting stock: <strong>{{ resultingQuantity }}</strong>
+  </div>
+
+  <div class="drawer-footer d-flex justify-content-end">
+    <button nz-button type="button" (click)="cancel()" class="mr-2">Cancel</button>
+    <button nz-button nzType="primary" type="submit" [nzLoading]="submitting">
+      Save Transaction
+    </button>
+  </div>
+</form>
