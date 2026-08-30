@@ -13,6 +13,8 @@ import { GrpItemListComponent } from './components/items/component/items-group/g
 import { PriceListComponent } from './components/items/component/price-list/price-list/price-list.component';
 import { InventoryListComponent } from './components/inventory/component/inventory-list/inventory-list.component';
 import { StockAdjustmentComponent } from './components/inventory/component/stock-adjustment/stock-adjustment.component';
+import { CreatePurchaseComponent } from './components/purchase/create-purchase/create-purchase.component';
+import { PurchaseListComponent } from './components/purchase/purchase-list/purchase-list.component';
 import { LayoutModule } from 'src/app/layout/layout.module';
 import { NgZorroSharedModule } from 'src/app/shared/modules/ng-zorro-shared.module';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -31,7 +33,9 @@ import { NzTimelineModule } from "ng-zorro-antd/timeline";
     GrpItemListComponent,
     PriceListComponent,
     InventoryListComponent,
-    StockAdjustmentComponent
+    StockAdjustmentComponent,
+    CreatePurchaseComponent,
+    PurchaseListComponent
   ],
   imports: [
     CommonModule,

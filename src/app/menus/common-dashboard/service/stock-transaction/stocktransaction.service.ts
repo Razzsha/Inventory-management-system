@@ -9,7 +9,7 @@ import { DatastoreService } from '../data-store/datastore.service';
   providedIn: 'root',
 })
 export class StocktransactionService {
-  transactions$ = this.store.transaction$;
+  transactions$ = this.store.transactions$;
 
   constructor(private store: DatastoreService) {}
 

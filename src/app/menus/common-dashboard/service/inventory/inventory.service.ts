@@ -9,10 +9,10 @@ import { DatastoreService } from '../data-store/datastore.service';
 })
 export class InventoryService {
   inventoryItems$: Observable<Inventoryitem[]> = combineLatest([
-    this.store.products$,
-    this.store.transaction$,
-    this.store.recorderLevel$,
-  ]).pipe(
+  this.store.products$,
+  this.store.transactions$,
+  this.store.reorderLevels$,
+]).pipe(
     map(([products, transactions, reorderLevels]) =>
       products.map((product): Inventoryitem => {
         const productTxns = transactions.filter(

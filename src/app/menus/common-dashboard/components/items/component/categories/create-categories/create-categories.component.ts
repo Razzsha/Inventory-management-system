@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NzDrawerRef } from 'ng-zorro-antd/drawer';
 import { CategoryFormResult } from 'src/app/menus/common-dashboard/models/categoryFormResult';
+import { Category } from 'src/app/menus/common-dashboard/models/category';
 
 @Component({
   selector: 'app-create-categories',
@@ -10,7 +11,7 @@ import { CategoryFormResult } from 'src/app/menus/common-dashboard/models/catego
 })
 export class CreateCategoriesComponent implements OnInit {
   @Input() mode: 'create' | 'edit' = 'create';
-  @Input() category?: { name: string; description: string; isActive: boolean };
+  @Input() category?: Category;
 
   form!: FormGroup;
   submitting = false;

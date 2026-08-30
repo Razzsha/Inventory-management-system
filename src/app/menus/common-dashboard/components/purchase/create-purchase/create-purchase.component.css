@@ -1,0 +1,36 @@
+.line-items-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.line-item-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.line-product {
+  flex: 2;
+}
+
+.line-qty,
+.line-cost {
+  flex: 1;
+}
+
+.line-total {
+  flex: 0 0 90px;
+  padding-top: 8px;
+  text-align: right;
+  font-weight: 500;
+}
+
+.grand-total-row {
+  text-align: right;
+  margin: 16px 0;
+  font-size: 15px;
+}

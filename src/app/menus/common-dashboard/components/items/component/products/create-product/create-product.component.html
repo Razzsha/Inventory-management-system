@@ -77,6 +77,17 @@
     </nz-form-control>
   </nz-form-item>
 
+  <nz-form-item>
+  <nz-form-label nzRequired>Reorder Level</nz-form-label>
+  <nz-form-control nzErrorTip="Reorder level is required">
+    <nz-input-number
+      formControlName="reorderLevel"
+      [nzMin]="0"
+      style="width: 100%"
+    ></nz-input-number>
+  </nz-form-control>
+</nz-form-item>
+
   <div class="drawer-footer d-flex justify-content-end">
     <button nz-button type="button" (click)="cancel()" class="mr-2">Cancel</button>
     <button nz-button nzType="primary" type="submit" nzSpaceItem [nzLoading]="submitting">

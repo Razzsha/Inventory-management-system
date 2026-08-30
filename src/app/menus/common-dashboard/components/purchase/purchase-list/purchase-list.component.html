@@ -1,0 +1,68 @@
+<nz-card nzHoverable>
+  <nz-row [nzGutter]="[16, 16]" nzJustify="space-between" nzAlign="middle">
+    <nz-col [nzSpan]="8">
+      <form nz-form [formGroup]="filterForm">
+        <input nz-input formControlName="search" placeholder="Search by supplier or PO number" />
+      </form>
+    </nz-col>
+    <nz-col>
+      <button nz-button nzType="primary" (click)="openCreateDrawer()">
+        <span nz-icon nzType="plus"></span>
+        New Purchase
+      </button>
+    </nz-col>
+  </nz-row>
+</nz-card>
+
+<nz-card class="mt-3" nzHoverable>
+  <nz-table [nzData]="filteredRows" nzSize="middle">
+    <thead>
+      <tr>
+        <th>PO Number</th>
+        <th>Supplier</th>
+        <th nzAlign="right">Items</th>
+        <th nzAlign="right">Total</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th nzAlign="center">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of filteredRows">
+        <td>{{ row.poNumber }}</td>
+        <td>{{ row.supplierName }}</td>
+        <td nzAlign="right">{{ row.itemCount }}</td>
+        <td nzAlign="right">Rs. {{ row.totalValue | number: '1.2-2' }}</td>
+        <td><nz-tag [nzColor]="statusColor(row.status)">{{ row.status }}</nz-tag></td>
+        <td>{{ row.createdAt | date: 'mediumDate' }}</td>
+        <td nzAlign="center">
+          <ng-container *ngIf="row.status === 'draft'">
+            <button
+              nz-button
+              nzType="text"
+              nzSize="small"
+              nz-tooltip
+              nzTooltipTitle="Mark as Received"
+              (click)="receivePurchase(row)"
+            >
+              <i nz-icon nzType="check-circle"></i>
+            </button>
+            <button
+              nz-button
+              nzType="text"
+              nzSize="small"
+              nzDanger
+              nz-tooltip
+              nzTooltipTitle="Cancel"
+              (click)="cancelPurchase(row)"
+            >
+              <i nz-icon nzType="close-circle"></i>
+            </button>
+          </ng-container>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+
+  <nz-empty *ngIf="!filteredRows.length" nzNotFoundContent="No purchases found"></nz-empty>
+</nz-card>

@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { combineLatest, startWith, Subject, takeUntil } from 'rxjs';
+import { combineLatest, Subject } from 'rxjs';
+import { startWith, takeUntil } from 'rxjs/operators';
 import { CreateProductComponent } from '../../products/create-product/create-product.component';
 import { Product } from 'src/app/menus/common-dashboard/models/product';
 import { ItemGroup } from 'src/app/menus/common-dashboard/models/ItemGroup';
@@ -9,6 +10,8 @@ import { AlertifyService } from 'src/app/shared/services/alertify.service';
 import { ConformationService } from 'src/app/shared/services/conformation.service';
 import { ProductService } from 'src/app/menus/common-dashboard/service/product/product.service';
 import { ItemgroupService } from 'src/app/menus/common-dashboard/service/item-group/itemgroup.service';
+import { DatastoreService } from 'src/app/menus/common-dashboard/service/data-store/datastore.service';
+
 interface CategoryColumn {
   id: number;
   label: string;
@@ -33,6 +36,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     private _confirmSrv: ConformationService,
     private productService: ProductService,
     private groupService: ItemgroupService,
+     private store: DatastoreService,
   ) {}
 
   ngOnInit(): void {
@@ -56,9 +60,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
         this.columns = groups.map((cat) => ({
           id: cat.id,
           label: cat.name,
-          products: product.filter(
-            (p) => p.categoryId === cat.id && matches(p),
-          ),
+          products: product.filter((p) => p.categoryId === cat.id && matches(p)),
         }));
       });
   }
@@ -68,42 +70,44 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  openCreateDrawer(categoryId: number): void {
-    const drawerRef = this._dds.openDrawer(
-      CreateProductComponent,
-      { mode: 'create', defaultCategoryId: categoryId },
-      { nzTitle: 'Create Product', nzWidth: '480px' },
-    );
-    drawerRef.afterClose.subscribe((result: any) => {
-      if (result?.['success']) {
-        this.productService.create({
-          name: result['data'].name,
-          sku: result['data'].sku,
-          categoryId: result['data'].categoryId,
-          type: result['data'].type,
-          description: result['data'].description,
-          price: result['data'].price,
-          status: result['data'].status,
-        });
-        this.alert.showSuccess('Product created successfully');
-      }
-    });
-  }
+ openCreateDrawer(categoryId: number): void {
+  const drawerRef = this._dds.openDrawer(
+    CreateProductComponent,
+    { mode: 'create', defaultCategoryId: categoryId },
+    { nzTitle: 'Create Product', nzWidth: '480px' },
+  );
+  drawerRef.afterClose.subscribe((result: any) => {
+    if (result?.['success']) {
+      const newProduct = this.productService.create({
+        name: result['data'].name,
+        sku: result['data'].sku,
+        categoryId: result['data'].categoryId,
+        type: result['data'].type,
+        description: result['data'].description,
+        price: result['data'].price,
+        status: result['data'].status,
+      });
+      this.store.setReorderLevel(newProduct.id, result['data'].reorderLevel); // NEW
+      this.alert.showSuccess('Product created successfully');
+    }
+  });
+}
 
-  openEditDrawer(row: Product): void {
-    const drawerRef = this._dds.openDrawer(
-      CreateProductComponent,
-      { mode: 'edit', product: row, defaultCategoryId: row.categoryId },
-      { nzTitle: 'Edit Product', nzWidth: '480px' },
-    );
+openEditDrawer(row: Product): void {
+  const drawerRef = this._dds.openDrawer(
+    CreateProductComponent,
+    { mode: 'edit', product: row, defaultCategoryId: row.categoryId },
+    { nzTitle: 'Edit Product', nzWidth: '480px' },
+  );
 
-    drawerRef.afterClose.subscribe((result: any) => {
-      if (result?.['success']) {
-        this.productService.update(row.id, result['data']);
-        this.alert.showSuccess('Product updated successfully');
-      }
-    });
-  }
+  drawerRef.afterClose.subscribe((result: any) => {
+    if (result?.['success']) {
+      this.productService.update(row.id, result['data']);
+      this.store.setReorderLevel(row.id, result['data'].reorderLevel); // NEW
+      this.alert.showSuccess('Product updated successfully');
+    }
+  });
+}
 
   deleteProduct(row: Product): void {
     this._confirmSrv.deleteConfirm(() => {

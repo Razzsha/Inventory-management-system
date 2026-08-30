@@ -1,8 +1,6 @@
+import { Category } from './category';
+
 export interface CategoryFormResult {
-   success: boolean;
-  data?: {
-    name: string;
-    description: string;
-    isActive: boolean;
-  };
+  success: boolean;
+  data?: Omit<Category, 'id'>;
 }
