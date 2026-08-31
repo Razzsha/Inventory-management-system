@@ -1,3 +1,4 @@
+export type SaleStatus = 'draft' | 'completed' | 'cancelled';
 export interface SaleLineItem {
   productId: number;
   quantity: number;
@@ -9,6 +10,6 @@ export interface Sale {
   customerName: string;
   invoiceNumber: string;
   items: SaleLineItem[];
-  status: 'draft' | 'completed' | 'cancelled';
+  status: SaleStatus;
   createdAt: string;
 }

@@ -15,10 +15,12 @@ import { InventoryListComponent } from './components/inventory/component/invento
 import { StockAdjustmentComponent } from './components/inventory/component/stock-adjustment/stock-adjustment.component';
 import { CreatePurchaseComponent } from './components/purchase/create-purchase/create-purchase.component';
 import { PurchaseListComponent } from './components/purchase/purchase-list/purchase-list.component';
+import { CreateSaleComponent } from './components/sales/create-sale/create-sale.component';
+import { SaleListComponent } from './components/sales/sale-list/sale-list.component';
 import { LayoutModule } from 'src/app/layout/layout.module';
 import { NgZorroSharedModule } from 'src/app/shared/modules/ng-zorro-shared.module';
 import { ReactiveFormsModule } from '@angular/forms';
-import { NzTimelineModule } from "ng-zorro-antd/timeline";
+import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 
 @NgModule({
   declarations: [
@@ -35,7 +37,9 @@ import { NzTimelineModule } from "ng-zorro-antd/timeline";
     InventoryListComponent,
     StockAdjustmentComponent,
     CreatePurchaseComponent,
-    PurchaseListComponent
+    PurchaseListComponent,
+    CreateSaleComponent,
+    SaleListComponent,
   ],
   imports: [
     CommonModule,
@@ -43,8 +47,7 @@ import { NzTimelineModule } from "ng-zorro-antd/timeline";
     LayoutModule,
     NgZorroSharedModule,
     ReactiveFormsModule,
-    NzTimelineModule
-],
-
+    NzTimelineModule,
+  ],
 })
-export class CommonDashboardModule { }
+export class CommonDashboardModule {}

@@ -8,6 +8,8 @@ import { DatastoreService } from '../data-store/datastore.service';
   providedIn: 'root',
 })
 export class InventoryService {
+  private latestItems: Inventoryitem[] = [];
+
   inventoryItems$: Observable<Inventoryitem[]> = combineLatest([
   this.store.products$,
   this.store.transactions$,
@@ -48,5 +50,9 @@ export class InventoryService {
 
   load() {
     return this.store.load();
+  }
+
+   getSnapshot(): Inventoryitem[] {  // NEW
+    return this.latestItems;
   }
 }

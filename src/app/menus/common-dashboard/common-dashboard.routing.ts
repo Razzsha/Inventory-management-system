@@ -8,7 +8,7 @@ import { CommonLoginComponent } from './components/common-login/common-login.com
 import { PriceListComponent } from './components/items/component/price-list/price-list/price-list.component';
 import { InventoryListComponent } from './components/inventory/component/inventory-list/inventory-list.component';
 import { PurchaseListComponent } from './components/purchase/purchase-list/purchase-list.component';
-
+import { SaleListComponent } from './components/sales/sale-list/sale-list.component';
 
 const routes: Routes = [
   {
@@ -50,6 +50,10 @@ const routes: Routes = [
       {
         path: 'purchase',
         component: PurchaseListComponent,
+      },
+      {
+        path: 'sale',
+        component: SaleListComponent,
       },
 
     ],

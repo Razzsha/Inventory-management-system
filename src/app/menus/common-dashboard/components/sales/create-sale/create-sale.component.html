@@ -1,0 +1,93 @@
+<form nz-form [formGroup]="form" (ngSubmit)="submit()">
+  <nz-form-item>
+    <nz-form-label nzRequired>Customer Name</nz-form-label>
+    <nz-form-control nzErrorTip="Customer name is required">
+      <input nz-input formControlName="customerName" placeholder="e.g. Walk-in Customer" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Invoice Number</nz-form-label>
+    <nz-form-control nzErrorTip="Invoice number is required">
+      <input nz-input formControlName="invoiceNumber" placeholder="e.g. INV-2011" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <div class="line-items-header">
+    <span>Items</span>
+    <button nz-button nzType="dashed" nzSize="small" type="button" (click)="addLineItem()">
+      <i nz-icon nzType="plus"></i> Add Item
+    </button>
+  </div>
+
+  <div formArrayName="items">
+    <div class="line-item-row" *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
+      <div class="line-fields">
+        <nz-form-item class="line-product">
+          <nz-form-control nzErrorTip="Select a product">
+            <nz-select formControlName="productId" nzPlaceHolder="Select product" style="width: 100%">
+              <nz-option *ngFor="let p of products" [nzLabel]="p.name" [nzValue]="p.id"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item class="line-qty">
+          <nz-form-control
+            [nzErrorTip]="
+              item.get('quantity')?.errors?.['exceedsStock'] !== undefined
+                ? 'Only ' + item.get('quantity')?.errors?.['exceedsStock'] + ' available'
+                : 'Min 1'
+            "
+          >
+            <nz-input-number
+              formControlName="quantity"
+              [nzMin]="1"
+              nzPlaceHolder="Qty"
+              style="width: 100%"
+            ></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item class="line-price">
+          <nz-form-control nzErrorTip="Min 0">
+            <nz-input-number
+              formControlName="unitPrice"
+              [nzMin]="0"
+              nzPlaceHolder="Unit Price"
+              style="width: 100%"
+            ></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+
+        <div class="line-total">Rs. {{ lineTotal(i) | number: '1.2-2' }}</div>
+
+        <button
+          nz-button
+          nzType="text"
+          nzDanger
+          nzSize="small"
+          type="button"
+          [disabled]="items.length === 1"
+          (click)="removeLineItem(i)"
+        >
+          <i nz-icon nzType="delete"></i>
+        </button>
+      </div>
+
+      <div class="stock-hint" *ngIf="availableStock(i) !== null">
+        Available: {{ availableStock(i) }}
+      </div>
+    </div>
+  </div>
+
+  <div class="grand-total-row">
+    Grand Total: <strong>Rs. {{ grandTotal | number: '1.2-2' }}</strong>
+  </div>
+
+  <div class="drawer-footer d-flex justify-content-end">
+    <button nz-button type="button" (click)="cancel()" class="mr-2">Cancel</button>
+    <button nz-button nzType="primary" type="submit" [nzLoading]="submitting">
+      Save Sale (Draft)
+    </button>
+  </div>
+</form>

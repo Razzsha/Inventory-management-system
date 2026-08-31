@@ -1,0 +1,46 @@
+.line-items-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.line-item-row {
+  margin-bottom: 8px;
+}
+
+.line-fields {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.line-product {
+  flex: 2;
+}
+
+.line-qty,
+.line-price {
+  flex: 1;
+}
+
+.line-total {
+  flex: 0 0 90px;
+  padding-top: 8px;
+  text-align: right;
+  font-weight: 500;
+}
+
+.stock-hint {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  margin-top: -4px;
+  margin-left: 4px;
+}
+
+.grand-total-row {
+  text-align: right;
+  margin: 16px 0;
+  font-size: 15px;
+}
