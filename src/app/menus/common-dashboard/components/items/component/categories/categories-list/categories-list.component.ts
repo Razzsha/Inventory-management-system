@@ -1,7 +1,16 @@
-import { Component, OnInit, OnDestroy, TemplateRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  TemplateRef,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { combineLatest, Subject } from 'rxjs';
 import { startWith, takeUntil } from 'rxjs/operators';
+// import * as $ from 'jquery';
 import { CreateCategoriesComponent } from '../create-categories/create-categories.component';
 import { DynamicDrawerService } from 'src/app/shared/services/dynamic-drawer.service';
 import { AlertifyService } from 'src/app/shared/services/alertify.service';
@@ -13,13 +22,16 @@ import { ConformationService } from 'src/app/shared/services/conformation.servic
 import { Router } from '@angular/router';
 import { Category } from 'src/app/menus/common-dashboard/models/category';
 import { CategoryService } from 'src/app/menus/common-dashboard/service/category/category.service';
+declare var $: any;
 
 @Component({
   selector: 'app-categories-list',
   templateUrl: './categories-list.component.html',
   styleUrls: ['./categories-list.component.css'],
 })
-export class CategoriesListComponent implements OnInit, OnDestroy {
+export class CategoriesListComponent
+  implements OnInit, AfterViewInit, OnDestroy
+{
   filterFormStructure!: FormGroup;
 
   data: Category[] = [];
@@ -32,6 +44,10 @@ export class CategoriesListComponent implements OnInit, OnDestroy {
   @ViewChild('statusTpl', { static: true }) statusTpl!: TemplateRef<any>;
   @ViewChild('actionsTpl', { static: true }) actionsTpl!: TemplateRef<any>;
   @ViewChild('titleTpl', { static: true }) titleTpl!: TemplateRef<any>;
+
+  // NEW: pqGrid container ref
+  @ViewChild('pqGridContainer', { static: true })
+  pqGridContainer!: ElementRef<HTMLDivElement>;
 
   private destroy$ = new Subject<void>();
 
@@ -83,13 +99,32 @@ export class CategoriesListComponent implements OnInit, OnDestroy {
       });
   }
 
+  // NEW: init pqGrid once view is ready
+  ngAfterViewInit(): void {
+    $(this.pqGridContainer.nativeElement).pqGrid({
+      width: '100%',
+      height: 420,
+      colModel: [
+        { title: 'SN', dataIndx: 'sn', width: 60, align: 'center' },
+        { title: 'Category Name', dataIndx: 'name', width: 200 },
+        { title: 'Description', dataIndx: 'description', width: 260 },
+        { title: 'Status', dataIndx: 'isActive', width: 100, align: 'center' },
+      ],
+      dataModel: { data: this.data },
+    });
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   private applyFilter(searchValue?: string): void {
-    const search = (searchValue ?? this.filterFormStructure.get('search')!.value ?? '')
+    const search = (
+      searchValue ??
+      this.filterFormStructure.get('search')!.value ??
+      ''
+    )
       .toString()
       .toLowerCase()
       .trim();
@@ -109,6 +144,14 @@ export class CategoriesListComponent implements OnInit, OnDestroy {
       ...c,
       sn: start + i + 1,
     })) as any;
+
+    // NEW: push updated data into pqGrid
+    ($(this.pqGridContainer.nativeElement).pqGrid as any)(
+      'option',
+      'dataModel.data',
+      this.data,
+    );
+    ($(this.pqGridContainer.nativeElement).pqGrid as any)('refreshDataAndView');
   }
 
   onQueryParamsChange(event: TableQueryEvent): void {

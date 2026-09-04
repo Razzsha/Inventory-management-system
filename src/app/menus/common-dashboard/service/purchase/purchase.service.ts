@@ -9,6 +9,9 @@ const STORAGE_KEY = 'inventorypilot-purchases';
   providedIn: 'root',
 })
 export class PurchaseService {
+  update(id: any, updated: any) {
+    throw new Error('Method not implemented.');
+  }
   private nextId = 1;
   private purchaseSubject = new BehaviorSubject<Purchase[]>(this.loadFromStorage());
   purchases$ = this.purchaseSubject.asObservable();

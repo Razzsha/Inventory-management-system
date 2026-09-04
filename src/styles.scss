@@ -1,1 +1,16 @@
-/* You can add global styles to this file, and also import other style files */
+.pq-grid,
+.pq-grid-header-outer,
+.pq-grid-body-outer,
+.pq-grid-header,
+.pq-grid-container {
+  position: relative !important;
+}
+
+.pq-grid-header-outer {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 2;
+  background: #fff;
+}

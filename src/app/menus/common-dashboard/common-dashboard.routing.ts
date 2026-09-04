@@ -9,6 +9,7 @@ import { PriceListComponent } from './components/items/component/price-list/pric
 import { InventoryListComponent } from './components/inventory/component/inventory-list/inventory-list.component';
 import { PurchaseListComponent } from './components/purchase/purchase-list/purchase-list.component';
 import { SaleListComponent } from './components/sales/sale-list/sale-list.component';
+import { TaskListComponent } from './components/task/task-list/task-list.component';
 
 const routes: Routes = [
   {
@@ -54,6 +55,10 @@ const routes: Routes = [
       {
         path: 'sale',
         component: SaleListComponent,
+      },
+       {
+        path: 'task',
+        component: TaskListComponent,
       },
 
     ],

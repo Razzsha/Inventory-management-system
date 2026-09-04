@@ -1,0 +1,54 @@
+<div *ngIf="showExportButtons" style="margin-bottom: 12px">
+  <nz-space>
+    <button
+      *nzSpaceItem
+      nz-button
+      nzType="default"
+      nzSize="small"
+      (click)="exportToExcel()"
+      nz-tooltip
+      nzTooltipTitle="Export to Excel"
+    >
+      <span
+        nz-icon
+        nzType="file-excel"
+        nzTheme="outline"
+        style="color: #217346"
+      ></span>
+      Excel
+    </button>
+
+    <button
+      *nzSpaceItem
+      nz-button
+      nzType="default"
+      nzSize="small"
+      (click)="exportToCsv()"
+      nz-tooltip
+      nzTooltipTitle="Export to CSV"
+    >
+      <span
+        nz-icon
+        nzType="file-text"
+        nzTheme="outline"
+        style="color: #1890ff"
+      ></span>
+      CSV
+    </button>
+
+    <button
+      *nzSpaceItem
+      nz-button
+      nzType="default"
+      nzSize="small"
+      (click)="printGrid()"
+      nz-tooltip
+      nzTooltipTitle="Print"
+    >
+      <span nz-icon nzType="printer" nzTheme="outline"></span>
+      Print
+    </button>
+  </nz-space>
+</div>
+
+<div [id]="gridId" style="width: 100%"></div>

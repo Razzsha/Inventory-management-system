@@ -1,0 +1,9 @@
+:host {
+  display: block;
+}
+::ng-deep .pq-row-edit {
+  background: #fffbe6 !important;
+}
+::ng-deep .pq-row-delete {
+  opacity: 0.5;
+}

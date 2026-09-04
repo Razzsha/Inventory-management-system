@@ -20,7 +20,10 @@ import { SaleListComponent } from './components/sales/sale-list/sale-list.compon
 import { LayoutModule } from 'src/app/layout/layout.module';
 import { NgZorroSharedModule } from 'src/app/shared/modules/ng-zorro-shared.module';
 import { ReactiveFormsModule } from '@angular/forms';
+import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzTimelineModule } from 'ng-zorro-antd/timeline';
+import { PqGridComponent } from 'src/app/shared/components/pq-grid/pq-grid.component';
+import { TaskListComponent } from './components/task/task-list/task-list.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +43,8 @@ import { NzTimelineModule } from 'ng-zorro-antd/timeline';
     PurchaseListComponent,
     CreateSaleComponent,
     SaleListComponent,
+    PqGridComponent,
+    TaskListComponent
   ],
   imports: [
     CommonModule,
@@ -48,6 +53,8 @@ import { NzTimelineModule } from 'ng-zorro-antd/timeline';
     NgZorroSharedModule,
     ReactiveFormsModule,
     NzTimelineModule,
+    NzGridModule
   ],
+   exports: [PqGridComponent],
 })
 export class CommonDashboardModule {}
