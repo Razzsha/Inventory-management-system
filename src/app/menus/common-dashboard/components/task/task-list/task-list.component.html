@@ -1,13 +1,13 @@
 <nz-card nzHoverable>
   <div nz-row nzJustify="end" style="margin-bottom: 12px">
-    <button nz-button nzType="primary" nzSize="small" (click)="addTask()">
-      <span nz-icon nzType="plus"></span>
+    <button nz-button nzType="primary" nzSize="small" (click)="saveTasks()">
+      <span nz-icon nzType="check"></span>
 
-      Add Task
+      OK
     </button>
   </div>
 
-  <app-pq-grid
+  <!-- <app-pq-grid
     #taskGrid
     gridId="taskGrid"
     [gridData]="tasks"
@@ -19,5 +19,19 @@
     [showExportButtons]="true"
     exportFilename="tasks"
   >
-  </app-pq-grid>
+  </app-pq-grid> -->
+  <app-pq-grid
+  #taskGrid
+  gridId="taskGrid"
+  [gridData]="tasks"
+  [columns]="columns"
+  [gridOptions]="gridOptions"
+  [height]="420"
+  [width]="'100%'"
+  [showTitle]="true"
+  [showExportButtons]="true"
+  [enableFullscreenToggle]="true"
+  exportFilename="tasks"
+>
+</app-pq-grid>
 </nz-card>

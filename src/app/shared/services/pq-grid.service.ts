@@ -1,208 +1,89 @@
 import { Injectable } from '@angular/core';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+
 declare var $: any;
-// import * as $ from 'jquery';
+
+export interface PqGridColumnMeta {
+  dataIndx: string;
+  title: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class PqGridService {
-  createGrid(containerId: string, options: any) {
+  private resizeTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+  createGrid(containerId: string, options: any): any {
     return $(`#${containerId}`).pqGrid(options);
   }
 
-  updateData(containerId: string, newData: any[]) {
-    $(`#${containerId}`).pqGrid('option', 'dataModel.data', newData);
-    $(`#${containerId}`).pqGrid('refreshDataAndView');
-  }
+  resizeGrid(containerId: string, delay = 100): void {
+    const grid = this.getGridInstance(containerId);
 
-  destroyGrid(containerId: string) {
-    if ($(`#${containerId}`).pqGrid('instance')) {
-      $(`#${containerId}`).pqGrid('destroy');
+    if (!grid) {
+      return;
     }
-  }
 
-  refreshGrid(containerId: string) {
-    $(`#${containerId}`).pqGrid('refresh');
-  }
-
-  private getGridData(containerId: string): any[] {
-    try {
-      return $(`#${containerId}`).pqGrid('option', 'dataModel').data || [];
-    } catch {
-      return [];
+    const existing = this.resizeTimers.get(containerId);
+    if (existing) {
+      clearTimeout(existing);
     }
+
+    const timer = setTimeout(() => {
+      grid.refresh();
+      this.resizeTimers.delete(containerId);
+    }, delay);
+
+    this.resizeTimers.set(containerId, timer);
   }
 
-  private getGridColumns(
-    containerId: string,
-  ): { dataIndx: string; title: string }[] {
-    try {
-      const colModel = $(`#${containerId}`).pqGrid('option', 'colModel') || [];
-
-      return this.flattenColumns(colModel).filter(
-        (col) => col.dataIndx !== 'buttons',
-      );
-    } catch {
-      return [];
-    }
-  }
-
-  private flattenColumns(
-    columns: any[],
-  ): { dataIndx: string; title: string }[] {
-    const result: { dataIndx: string; title: string }[] = [];
-
-    columns.forEach((col) => {
-      if (col.colModel && col.colModel.length > 0) {
-        col.colModel.forEach((child: any) => {
-          result.push({
-            dataIndx: child.dataIndx,
-            title: `${col.title} - ${child.title}`,
-          });
-        });
-      } else if (col.dataIndx) {
-        result.push({
-          dataIndx: col.dataIndx,
-          title: col.title || col.dataIndx,
-        });
-      }
-    });
-
-    return result;
-  }
-
-  exportToExcel(containerId: string, filename: string = 'export'): void {
-    const data = this.getGridData(containerId);
-    const columns = this.getGridColumns(containerId);
-    if (!data?.length) return;
-
-    const exportData = data.map((row) => {
-      const mapped: any = {};
-      columns.forEach((col) => {
-        mapped[col.title || col.dataIndx] = row[col.dataIndx] ?? '';
-      });
-      return mapped;
-    });
-
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    const wb: XLSX.WorkBook = {
-      Sheets: { Sheet1: ws },
-      SheetNames: ['Sheet1'],
-    };
-    const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-
-    saveAs(
-      new Blob([buffer], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      }),
-      `${filename}_${Date.now()}.xlsx`,
-    );
-  }
-
-  exportToCsv(containerId: string, filename: string = 'export'): void {
-    const data = this.getGridData(containerId);
-    const columns = this.getGridColumns(containerId);
-    if (!data?.length) return;
-
-    const headers = columns.map((col) => col.title || col.dataIndx);
-    const rows = data.map((row) =>
-      columns.map((col) => JSON.stringify(row[col.dataIndx] ?? '')).join(','),
-    );
-    rows.unshift(headers.join(','));
-
-    saveAs(
-      new Blob([rows.join('\r\n')], { type: 'text/csv;charset=utf-8;' }),
-      `${filename}_${Date.now()}.csv`,
-    );
-  }
   getGridInstance(containerId: string): any {
     try {
-      return $(`#${containerId}`).pqGrid('instance');
+      return $(`#${containerId}`).pqGrid('instance') || null;
     } catch {
       return null;
     }
   }
 
-  addRow(containerId: string, rowData: any, rowIndxPage = 0): number {
+  destroyGrid(containerId: string): void {
+    const timer = this.resizeTimers.get(containerId);
+    if (timer) {
+      clearTimeout(timer);
+      this.resizeTimers.delete(containerId);
+    }
+
+    try {
+      const grid = this.getGridInstance(containerId);
+
+      if (grid) {
+        grid.destroy();
+      }
+    } catch {
+      // Grid may already be destroyed - safe to ignore
+    }
+  }
+
+  updateData(containerId: string, newData: any[]): void {
     const grid = this.getGridInstance(containerId);
 
     if (!grid) {
-      return -1;
+      return;
     }
 
-    return grid.addRow({
-      rowIndxPage,
-      rowData,
-      checkEditable: false,
-    });
+    grid.option('dataModel.data', newData);
+    grid.refreshDataAndView();
   }
 
-  getRowData(containerId: string, rowIndx: number): any {
+  getGridData(containerId: string): any[] {
     const grid = this.getGridInstance(containerId);
 
     if (!grid) {
-      return null;
+      return [];
     }
 
-    return grid.getRowData({
-      rowIndx,
-    });
-  }
-
-  editRow(
-  containerId: string,
-  rowIndx: number
-): void {
-
-  const grid = this.getGridInstance(containerId);
-
-  if (!grid) {
-    return;
-  }
-
-  grid.addClass({
-    rowIndx,
-    cls: 'pq-row-edit',
-  });
-
-  grid.goToPage({
-    rowIndx,
-  });
-
-  setTimeout(() => {
-    grid.editFirstCellInRow({
-      rowIndx,
-    });
-  }, 0);
-}
-
-  isEditing(containerId: string): boolean {
-    const grid = this.getGridInstance(containerId);
-
-    if (!grid) {
-      return false;
-    }
-
-    const rows = grid.getRowsByClass({
-      cls: 'pq-row-edit',
-    });
-
-    if (rows.length > 0) {
-      const rowIndx = rows[0].rowIndx;
-
-      grid.goToPage({
-        rowIndx,
-      });
-
-      grid.editFirstCellInRow({
-        rowIndx,
-      });
-
-      return true;
-    }
-
-    return false;
+    return grid.option('dataModel').data || [];
   }
 
   saveEditCell(containerId: string): boolean {
@@ -215,90 +96,159 @@ export class PqGridService {
     return grid.saveEditCell() !== false;
   }
 
-  isValid(containerId: string, rowIndx: number): boolean {
+  validateGrid(containerId: string): boolean {
     const grid = this.getGridInstance(containerId);
 
     if (!grid) {
       return false;
     }
 
-    return grid.isValid({
-      rowIndx,
-      focusInvalid: true,
-    }).valid;
+    // Guard against isValid() returning undefined instead of throwing.
+    const result = grid.isValid({ focusInvalid: true });
+    return !!result?.valid;
   }
 
-  isDirty(containerId: string): boolean {
-    const grid = this.getGridInstance(containerId);
+  refreshGrid(containerId: string): void {
+    this.getGridInstance(containerId)?.refresh();
+  }
 
-    if (!grid) {
-      return false;
+  private getGridColumns(containerId: string): PqGridColumnMeta[] {
+    try {
+      const grid = this.getGridInstance(containerId);
+
+      if (!grid) {
+        return [];
+      }
+
+      return this.flattenColumns(grid.option('colModel') || []);
+    } catch {
+      return [];
+    }
+  }
+
+  private flattenColumns(columns: any[], parentTitle = ''): PqGridColumnMeta[] {
+    const result: PqGridColumnMeta[] = [];
+
+    for (const col of columns) {
+      const title = parentTitle ? `${parentTitle} - ${col.title}` : col.title;
+
+      if (col.colModel?.length) {
+        result.push(...this.flattenColumns(col.colModel, title));
+      } else if (col.dataIndx) {
+        result.push({
+          dataIndx: col.dataIndx,
+          title: title || col.dataIndx,
+        });
+      }
     }
 
-    return grid.isDirty();
+    return result;
   }
 
-  commit(
-    containerId: string,
-    type: 'add' | 'update' | 'delete',
-    rows: any[],
-  ): void {
-    const grid = this.getGridInstance(containerId);
+  private getExportPayload(containerId: string): {
+    data: any[];
+    columns: PqGridColumnMeta[];
+  } {
+    const data = this.getGridData(containerId);
+    const columns = this.getGridColumns(containerId).filter(
+      (col) => col.dataIndx !== 'buttons',
+    );
 
-    if (!grid) {
+    return { data, columns };
+  }
+
+  exportToExcel(containerId: string, filename = 'export'): void {
+    const { data, columns } = this.getExportPayload(containerId);
+
+    if (!data.length || !columns.length) {
       return;
     }
 
-    grid.commit({
-      type,
-      rows,
+    const exportData = data.map((row) => {
+      const mapped: Record<string, any> = {};
+
+      columns.forEach((col) => {
+        mapped[col.title] = row[col.dataIndx] ?? '';
+      });
+
+      return mapped;
     });
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+
+    const wb: XLSX.WorkBook = {
+      Sheets: { Sheet1: ws },
+      SheetNames: ['Sheet1'],
+    };
+
+    const buffer = XLSX.write(wb, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+
+    saveAs(
+      new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      }),
+      `${filename}_${Date.now()}.xlsx`,
+    );
   }
 
-  cancelEdit(containerId: string, rowIndx: number): void {
-    const grid = this.getGridInstance(containerId);
+  exportToCsv(containerId: string, filename = 'export'): void {
+    const { data, columns } = this.getExportPayload(containerId);
 
-    if (!grid) {
+    if (!data.length || !columns.length) {
       return;
     }
 
-    grid.quitEditMode();
+    const escapeCsvValue = (value: any): string => {
+      const str = String(value ?? '');
+      return /[",\r\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+    };
 
-    grid.removeClass({
-      rowIndx,
-      cls: 'pq-row-edit',
-    });
+    const headers = columns.map((col) => escapeCsvValue(col.title || col.dataIndx));
+    const rows = data.map((row) =>
+      columns.map((col) => escapeCsvValue(row[col.dataIndx])).join(','),
+    );
 
-    grid.rollback();
+    rows.unshift(headers.join(','));
 
-    grid.refreshRow({
-      rowIndx,
-    });
-  }
-
-  deleteRow(containerId: string, rowIndx: number): void {
-    const grid = this.getGridInstance(containerId);
-
-    const rowData = grid.getRowData({
-      rowIndx,
-    });
-
-    grid.deleteRow({
-      rowIndx,
-    });
-
-    return rowData;
+    saveAs(
+      new Blob(['\ufeff' + rows.join('\r\n')], {
+        type: 'text/csv;charset=utf-8;',
+      }),
+      `${filename}_${Date.now()}.csv`,
+    );
   }
 
   printGrid(containerId: string): void {
-    const data = this.getGridData(containerId);
-    const columns = this.getGridColumns(containerId);
-    if (!data?.length) return;
+    const { data, columns } = this.getExportPayload(containerId);
+
+    if (!data.length || !columns.length) {
+      return;
+    }
+
+    const escapeHtml = (value: any): string =>
+      String(value ?? '').replace(
+        /[&<>"']/g,
+        (ch) =>
+          ((
+            {
+              '&': '&amp;',
+              '<': '&lt;',
+              '>': '&gt;',
+              '"': '&quot;',
+              "'": '&#39;',
+            } as Record<string, string>
+          )[ch]),
+      );
 
     const headerRow = columns
       .map(
         (col) =>
-          `<th style="padding:6px 10px; background:#f0f0f0;">${col.title || col.dataIndx}</th>`,
+          `<th style="padding:6px 10px;background:#f0f0f0;">${escapeHtml(
+            col.title || col.dataIndx,
+          )}</th>`,
       )
       .join('');
 
@@ -308,7 +258,7 @@ export class PqGridService {
           `<tr>${columns
             .map(
               (col) =>
-                `<td style="padding:6px 10px;">${row[col.dataIndx] ?? ''}</td>`,
+                `<td style="padding:6px 10px;">${escapeHtml(row[col.dataIndx])}</td>`,
             )
             .join('')}</tr>`,
       )
@@ -331,13 +281,19 @@ export class PqGridService {
             <tbody>${bodyRows}</tbody>
           </table>
         </body>
-      </html>`;
+      </html>
+    `;
 
     const win = window.open('', '', 'width=900,height=700');
-    win!.document.write(html);
-    win!.document.close();
-    win!.focus();
-    win!.print();
-    win!.close();
+
+    if (!win) {
+      return;
+    }
+
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    win.print();
+    win.close();
   }
 }

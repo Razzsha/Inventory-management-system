@@ -1,14 +1,17 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-
+import { Component, ViewChild } from '@angular/core';
 import { AlertifyService } from 'src/app/shared/services/alertify.service';
 import { PqGridComponent } from 'src/app/shared/components/pq-grid/pq-grid.component';
+declare var $: any;
+import { NzModalService } from 'ng-zorro-antd/modal';
 
 interface Task {
   id: number | null;
   title: string;
   date: string;
   time: string;
+  priority: string;
   completed: boolean;
+  fruits: string;
 }
 
 @Component({
@@ -16,58 +19,81 @@ interface Task {
   templateUrl: './task-list.component.html',
   styleUrls: ['./task-list.component.css'],
 })
-export class TaskListComponent implements OnInit {
+export class TaskListComponent {
   @ViewChild('taskGrid')
   taskGrid!: PqGridComponent;
 
-  tasks: Task[] = [];
+  tasks: Task[] = [
+    {
+      id: 1,
+      title: 'Prepare stock report',
+      date: '2026-09-05',
+      time: '09:30',
+      priority: 'High',
+      completed: false,
+      fruits: 'Apple',
+    },
 
-  nextId = 1;
+    {
+      id: 2,
+      title: 'Call supplier',
+      date: '2026-09-03',
+      time: '14:00',
+      priority: 'Medium',
+      completed: true,
+      fruits: 'Orange',
+    },
 
-  constructor(private alert: AlertifyService) {}
+    {
+      id: 3,
+      title: 'Review purchase orders',
+      date: '2026-09-06',
+      time: '11:15',
+      priority: 'Low',
+      completed: false,
+      fruits: 'Kiwi',
+    },
 
-  ngOnInit(): void {
-    this.tasks = [
-      {
-        id: 1,
-        title: 'Prepare stock report',
-        date: '2026-09-05',
-        time: '09:30',
-        completed: true,
-      },
-      {
-        id: 2,
-        title: 'Call supplier',
-        date: '2026-09-03',
-        time: '14:00',
-        completed: true,
-      },
-      {
-        id: 3,
-        title: 'Review purchase orders',
-        date: '2026-09-06',
-        time: '11:15',
-        completed: false,
-      },
-      {
-        id: 4,
-        title: 'Update inventory counts',
-        date: '2026-09-04',
-        time: '16:45',
-        completed: false,
-      },
-    ];
+    {
+      id: 4,
+      title: 'Update inventory counts',
+      date: '2026-09-04',
+      time: '16:45',
+      priority: 'High',
+      completed: false,
+      fruits: 'Guava',
+    },
+  ];
 
-    this.nextId = Math.max(...this.tasks.map((task) => task.id as number)) + 1;
-  }
+  dateEditor = (ui: any): void => {
+    const $input = ui.$cell.find('input');
+
+    $input.datepicker({
+      changeMonth: true,
+      changeYear: true,
+      dateFormat: 'yy-mm-dd',
+      showAnim: '',
+
+      beforeShow: () => {
+        setTimeout(() => {
+          $('.ui-datepicker').css('z-index', 999999999);
+        });
+      },
+
+      onSelect: (dateText: string) => {
+        $input.val(dateText);
+
+        setTimeout(() => {
+          ui.$editor.focus();
+        }, 0);
+      },
+    });
+  };
 
   gridOptions: any = {
     rowHt: 32,
-
     wrap: false,
-
     columnBorders: false,
-
     trackModel: {
       on: true,
     },
@@ -80,287 +106,349 @@ export class TaskListComponent implements OnInit {
 
     postRenderInterval: -1,
 
-    editable: function (this: any, ui: any) {
-      return this.hasClass({
-        rowIndx: ui.rowIndx,
-        cls: 'pq-row-edit',
-      });
-    },
+    editModel: {
+      clicksToEdit: 1,
+      pressToEdit: true,
+      keyUpDown: false,
+      filterKeys: true,
+      saveKey: $.ui.keyCode.ENTER,
+      onSave: 'nextFocus',
+      onTab: 'nextFocus',
+      onBlur: 'validate',
+      allowInvalid: false,
 
-    dataChange: (evt: any, ui: any) => {
-      console.log('Cell changed:', ui.rowData);
     },
+    numberCell: {
+        show: false
+    },   
+    resizable: true
   };
 
   columns: any[] = [
     {
       title: 'Title',
-      width: 200,
-      dataType: 'string',
       dataIndx: 'title',
+      width: 220,
+      dataType: 'string',
+
+      editable: true,
+
+      editor: {
+        type: 'textbox',
+        attr: 'autocomplete="off" is="clear-text"',
+      },
 
       validations: [
         {
           type: 'nonEmpty',
-          msg: 'Required',
+          msg: 'Title is required',
         },
         {
           type: 'maxLen',
           value: 60,
-          msg: 'Length should be <= 60',
+          msg: 'Title cannot exceed 60 characters',
         },
       ],
     },
 
     {
       title: 'Date',
-      width: 140,
-      dataType: 'string',
       dataIndx: 'date',
+      width: 140,
+      dataType: 'date',
+
+      format: 'yy-mm-dd',
+      fmtDateEdit: 'yy-mm-dd',
+
+      cls: 'pq-calendar pq-side-icon',
+
+      editable: true,
 
       editor: {
         type: 'textbox',
+        attr: 'is="clear-text"',
+        init: this.dateEditor,
       },
 
       validations: [
         {
           type: 'nonEmpty',
-          msg: 'Required',
+          msg: 'Date is required',
         },
       ],
     },
+
     {
-      title: 'Time',
-      width: 110,
+  title: 'Time',
+  dataIndx: 'time',
+  width: 130,
+  dataType: 'string',
+  editable: true,
+
+  editor: {
+    type: 'textbox',
+
+    attr: 'type="time" step="60"',
+
+    init: function (ui: any) {
+      const $input = ui.$cell.find('input');
+
+      $input.attr({
+        type: 'time',
+        step: '60',
+      });
+    },
+  },
+
+  validations: [
+    {
+      type: 'nonEmpty',
+      msg: 'Time is required',
+    },
+    {
+      type: 'regexp',
+      value: '^([01]\\d|2[0-3]):([0-5]\\d)$',
+      msg: 'Use HH:mm format',
+    },
+  ],
+},
+
+    {
+      title: 'Priority',
+      dataIndx: 'priority',
+      width: 130,
       dataType: 'string',
-      dataIndx: 'time',
+
+      editable: true,
 
       editor: {
-        type: 'textbox',
+        type: 'select',
+        valueIndx: 'value',
+        labelIndx: 'text',
+
+        options: [
+          {
+            value: 'High',
+            text: 'High',
+          },
+          {
+            value: 'Medium',
+            text: 'Medium',
+          },
+          {
+            value: 'Low',
+            text: 'Low',
+          },
+        ],
+      },
+
+      render: function (ui: any) {
+        const options = ui.column.editor.options;
+
+        const option = options.find((item: any) => item.value === ui.cellData);
+
+        return option ? option.text : '';
       },
 
       validations: [
         {
-          type: 'regex',
-          value: '^([01]\\d|2[0-3]):([0-5]\\d)$',
-          msg: 'Use HH:mm format',
+          type: 'nonEmpty',
+          msg: 'Priority is required',
         },
       ],
     },
 
     {
-      title: 'Done',
-      width: 90,
-      align: 'center',
-      dataType: 'bool',
-      dataIndx: 'completed',
+      title: 'Fruits',
+      dataIndx: 'fruits',
+      width: 140,
+      dataType: 'string',
+      editable: true,
 
-      editor: false,
+      editor: {
+        type: 'div',
 
-      type: 'checkbox',
-    },
+        options: ['Apple', 'Orange', 'Kiwi', 'Guava', 'Grapes'],
 
-    {
-      title: '',
-      dataIndx: 'buttons',
+        init: function (ui: any) {
+          const options = ui.column.editor.options;
+          const radioName = 'fruit_' + ui.rowIndx;
 
-      editable: false,
+          const html = options
+            .map((option: string) => {
+              const checked = option === ui.cellData ? 'checked="checked"' : '';
 
-      minWidth: 165,
+              return `
+            <label
+              class="fruit-radio-option"
+              style="
+                display: inline-flex;
+                align-items: center;
+                white-space: nowrap;
+                margin-right: 8px;
+                cursor: pointer;
+              "
+            >
+              <input
+                type="radio"
+                name="${radioName}"
+                value="${option}"
+                ${checked}
+                style="margin-right: 3px;"
+              />
 
-      sortable: false,
+              <span>${option}</span>
+            </label>
+          `;
+            })
+            .join('');
 
-      render: function () {
-        return `
-          <button
-            type="button"
-            class="edit_btn"
-          >
-            Edit
-          </button>
+          let $container = ui.$cell.children('div');
 
-          <button
-            type="button"
-            class="delete_btn"
-          >
-            Delete
-          </button>
-        `;
+          if (!$container.length) {
+            $container = $('<div></div>');
+            ui.$cell.append($container);
+          }
+
+          $container
+            .css({
+              padding: '4px',
+              display: 'flex',
+              'flex-wrap': 'wrap',
+              'align-items': 'center',
+              gap: '3px',
+            })
+            .html(html);
+
+          $container
+            .find('input[type="radio"]')
+            .on('change', function (this: HTMLInputElement) {
+              const selectedValue = $(this).val();
+
+              ui.cellData = selectedValue;
+
+              $container.find('.fruit-radio-option').hide();
+              $(this).closest('.fruit-radio-option').show();
+
+              setTimeout(() => {
+                ui.$cell.trigger('blur');
+              }, 50);
+            });
+        },
+
+        getData: function (ui: any) {
+          return ui.$cell.find('input[type="radio"]:checked').val();
+        },
       },
 
-      postRender: (ui: any) => {
-        const grid = this.taskGrid?.getGridInstance();
-
-        if (!grid) {
-          return;
-        }
-
-        const rowIndx = ui.rowIndx;
-
-        const $cell = grid.getCell(ui);
-
-        if (
-          grid.hasClass({
-            rowData: ui.rowData,
-            cls: 'pq-row-edit',
-          })
-        ) {
-          $cell
-            .find('.edit_btn')
-            .button({
-              label: 'Update',
-              icon: 'ui-icon-check',
-            })
-            .off('click')
-            .on('click', () => {
-              this.updateTask(rowIndx);
-            });
-
-          $cell
-            .find('.delete_btn')
-            .button({
-              label: 'Cancel',
-              icon: 'ui-icon-close',
-            })
-            .off('click')
-            .on('click', () => {
-              this.cancelTask(rowIndx);
-            });
-        } else {
-          $cell
-            .find('.edit_btn')
-            .button({
-              label: 'Edit',
-              icon: 'ui-icon-pencil',
-            })
-            .off('click')
-            .on('click', () => {
-              if (this.taskGrid.isEditing()) {
-                return false;
-              }
-
-              this.taskGrid.editRow(rowIndx);
-
-              return false;
-            });
-
-          $cell
-            .find('.delete_btn')
-            .button({
-              label: 'Delete',
-              icon: 'ui-icon-trash',
-            })
-            .off('click')
-            .on('click', () => {
-              this.deleteTask(rowIndx);
-            });
-        }
-      },
+      validations: [
+        {
+          type: 'nonEmpty',
+          msg: 'Fruit is required',
+        },
+      ],
     },
   ];
 
-  addTask(): void {
-    if (this.taskGrid.isEditing()) {
+  constructor(
+    private alertify: AlertifyService,
+    private modal: NzModalService,
+  ) {}
+
+  saveTasks(): void {
+    if (!this.taskGrid) {
+      console.warn(
+        'taskGrid ViewChild is undefined — check that the template ' +
+          'has a matching #taskGrid reference on the pq-grid element.',
+      );
       return;
     }
 
-    const rowData: Task = {
-      id: null,
-      title: '',
-      date: '',
-      time: '',
-      completed: false,
-    };
+    const saved = this.taskGrid.saveEditCell();
 
-    const rowIndx = this.taskGrid.addRow(rowData, 0);
-
-    if (rowIndx >= 0) {
-      this.taskGrid.editRow(rowIndx);
+    if (!saved) {
+      this.alertify.showError('Please fix the current cell before saving.');
+      return;
     }
+
+    const valid = this.taskGrid.validateGrid();
+
+    if (!valid) {
+      this.alertify.showError('Please fix the highlighted validation errors.');
+      return;
+    }
+
+    const updatedTasks = this.taskGrid.getGridData() as Task[];
+
+    this.tasks = updatedTasks.map((task) => ({
+      ...task,
+    }));
+
+    console.log('Tasks updated:', this.tasks);
+
+    this.showUpdatedDataPopup(this.tasks);
   }
 
-  updateTask(rowIndx: number): void {
-    if (!this.taskGrid.saveEditCell()) {
-      return;
-    }
+  showUpdatedDataPopup(tasks: Task[]): void {
+    const html = tasks
+      .map(
+        (task, index) => `
+        <div style="
+          border-bottom: 1px solid #ddd;
+          padding: 10px 0;
+        ">
+          <strong>Row ${index + 1}</strong>
 
-    if (!this.taskGrid.isValid(rowIndx)) {
-      return;
-    }
+          <p>
+            <strong>Title:</strong>
+            ${this.escapeHtml(task.title)}
+          </p>
 
-    const updatedTask = this.taskGrid.getRowData(rowIndx) as Task;
+          <p>
+            <strong>Date:</strong>
+            ${this.escapeHtml(task.date)}
+          </p>
 
-    if (!updatedTask) {
-      return;
-    }
+          <p>
+            <strong>Time:</strong>
+            ${this.escapeHtml(task.time)}
+          </p>
 
-    const isNew = updatedTask.id == null;
+          <p>
+            <strong>Priority:</strong>
+            ${this.escapeHtml(task.priority)}
+          </p>
 
-    if (isNew) {
-      updatedTask.id = this.nextId++;
-    }
+          <p>
+            <strong>Fruits:</strong>
+            ${this.escapeHtml(task.fruits)}
+          </p>
+        </div>
+      `,
+      )
+      .join('');
 
-    const index = this.tasks.findIndex((task) => task.id === updatedTask.id);
-
-    if (index > -1) {
-      this.tasks[index] = {
-        ...updatedTask,
-      };
-    } else {
-      this.tasks.push({
-        ...updatedTask,
-      });
-    }
-
-    this.taskGrid.commit(isNew ? 'add' : 'update', [updatedTask]);
-
-    const grid = this.taskGrid.getGridInstance();
-
-    if (grid) {
-      grid.quitEditMode();
-
-      grid.removeClass({
-        rowIndx,
-        cls: 'pq-row-edit',
-      });
-
-      grid.refreshRow({
-        rowIndx,
-      });
-    }
-
-    console.log('Updated Task:', updatedTask);
-
-    this.alert.showSuccess(isNew ? 'Task added' : 'Task updated');
+    this.modal.info({
+      nzTitle: 'Updated Tasks',
+      nzContent: html,
+      nzOkText: 'OK',
+      nzWidth: '600px',
+    });
   }
 
-  cancelTask(rowIndx: number): void {
-    this.taskGrid.cancelEdit(rowIndx);
-
-    console.log('Task edit cancelled:', rowIndx);
-  }
-
-  deleteTask(rowIndx: number): void {
-    const rowData = this.taskGrid.getRowData(rowIndx) as Task;
-
-    if (!rowData) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${rowData.title}"?`,
+  private escapeHtml(value: unknown): string {
+    return String(value ?? '').replace(
+      /[&<>"']/g,
+      (ch) =>
+        ((
+          {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+          } as Record<string, string>
+        )[ch]),
     );
-
-    if (!confirmed) {
-      return;
-    }
-
-    this.tasks = this.tasks.filter((task) => task.id !== rowData.id);
-
-    this.taskGrid.updateData(this.tasks);
-
-    console.log('Deleted Task:', rowData);
-
-    this.alert.showSuccess('Task deleted');
   }
 }

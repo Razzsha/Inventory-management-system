@@ -15,6 +15,7 @@
         nzTheme="outline"
         style="color: #217346"
       ></span>
+
       Excel
     </button>
 
@@ -33,6 +34,7 @@
         nzTheme="outline"
         style="color: #1890ff"
       ></span>
+
       CSV
     </button>
 
@@ -46,9 +48,14 @@
       nzTooltipTitle="Print"
     >
       <span nz-icon nzType="printer" nzTheme="outline"></span>
+
       Print
     </button>
   </nz-space>
 </div>
 
-<div [id]="gridId" style="width: 100%"></div>
+<div
+  [id]="gridId"
+  [style.height]="cssHeight"
+  [style.width]="cssWidth"
+></div>

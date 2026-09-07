@@ -3,12 +3,12 @@ import {
   Component,
   EventEmitter,
   Input,
+  NgZone,
   OnChanges,
   OnDestroy,
   Output,
   SimpleChanges,
 } from '@angular/core';
-
 import { PqGridService } from '../../services/pq-grid.service';
 
 @Component({
@@ -16,59 +16,96 @@ import { PqGridService } from '../../services/pq-grid.service';
   templateUrl: './pq-grid.component.html',
   styleUrls: ['./pq-grid.component.css'],
 })
-export class PqGridComponent implements AfterViewInit, OnDestroy, OnChanges {
+export class PqGridComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() gridId = 'myGrid';
   @Input() gridData: any[] = [];
   @Input() columns: any[] = [];
-
   @Input() groupBy: string[] = [];
-
+  @Input() gridOptions: any = {};
   @Input() height: number | string = 500;
   @Input() width: number | string = 'auto';
-
   @Input() showHeader = true;
   @Input() stripeRows = true;
   @Input() freezeCols = 0;
   @Input() wrap = true;
-  @Input() numberCell = true;
-
+  @Input() numberCell: any = true;
   @Input() selectionMode: 'single' | 'multiple' = 'single';
-
   @Input() showTitle = true;
   @Input() showToolbar = false;
   @Input() showPager = false;
   @Input() pageModel: any = null;
-
   @Input() showExportButtons = true;
   @Input() exportFilename = 'export';
-
-  @Input() gridOptions: any = {};
+  @Input() enableFullscreenToggle = false;
 
   @Output() rowSelect = new EventEmitter<any>();
   @Output() rowDblClick = new EventEmitter<any>();
   @Output() cellClick = new EventEmitter<any>();
 
   private initialized = false;
+  private pendingRebuild: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(private pqGridService: PqGridService) {}
+  constructor(
+    private pqGridService: PqGridService,
+    private zone: NgZone,
+  ) {}
+
+  get cssWidth(): string {
+    return typeof this.width === 'number' ? `${this.width}px` : this.width;
+  }
+
+  get cssHeight(): string {
+    return typeof this.height === 'number' ? `${this.height}px` : this.height;
+  }
 
   ngAfterViewInit(): void {
     this.createGrid();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.initialized) {
+      return;
+    }
+
+    if (changes['columns'] && !changes['columns'].firstChange) {
+      this.pqGridService.destroyGrid(this.gridId);
+
+      if (this.pendingRebuild) {
+        clearTimeout(this.pendingRebuild);
+      }
+      this.pendingRebuild = setTimeout(() => {
+        this.createGrid();
+        this.pendingRebuild = null;
+      }, 100);
+
+      return;
+    }
+
+    if (changes['gridData'] && !changes['gridData'].firstChange) {
+      this.pqGridService.updateData(this.gridId, this.gridData);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.pendingRebuild) {
+      clearTimeout(this.pendingRebuild);
+    }
+    this.pqGridService.destroyGrid(this.gridId);
+  }
+
   private createGrid(): void {
+    const userOptions = this.gridOptions || {};
+
     const gridOptions: any = {
+      ...userOptions,
       width: this.width,
       height: this.height,
-
-      editable: false,
-
+      editable: true,
       showHeader: this.showHeader,
       stripeRows: this.stripeRows,
       freezeCols: this.freezeCols,
       wrap: this.wrap,
       numberCell: this.numberCell,
-
       showTitle: this.showTitle,
       showToolbar: this.showToolbar,
 
@@ -78,24 +115,27 @@ export class PqGridComponent implements AfterViewInit, OnDestroy, OnChanges {
       },
 
       rowSelect: (evt: any, ui: any) => {
-        this.rowSelect.emit(ui.rowData);
+        userOptions.rowSelect?.(evt, ui);
+        this.zone.run(() => this.rowSelect.emit(ui.rowData));
       },
 
       rowDblClick: (evt: any, ui: any) => {
-        this.rowDblClick.emit(ui.rowData);
+        userOptions.rowDblClick?.(evt, ui);
+        this.zone.run(() => this.rowDblClick.emit(ui.rowData));
       },
 
       cellClick: (evt: any, ui: any) => {
-        this.cellClick.emit({
-          rowData: ui.rowData,
-          column: ui.column,
-          dataIndx: ui.dataIndx,
-          value: ui.rowData?.[ui.dataIndx],
-          rowIndx: ui.rowIndx,
-        });
+        userOptions.cellClick?.(evt, ui);
+        this.zone.run(() =>
+          this.cellClick.emit({
+            rowData: ui.rowData,
+            column: ui.column,
+            dataIndx: ui.dataIndx,
+            value: ui.rowData?.[ui.dataIndx],
+            rowIndx: ui.rowIndx,
+          }),
+        );
       },
-
-      ...this.gridOptions,
 
       dataModel: {
         data: this.gridData,
@@ -120,114 +160,78 @@ export class PqGridComponent implements AfterViewInit, OnDestroy, OnChanges {
       gridOptions.pageModel = this.pageModel;
     }
 
-    this.pqGridService.createGrid(this.gridId, gridOptions);
+    if (!gridOptions.collapsible && this.enableFullscreenToggle) {
+      gridOptions.collapsible = {
+        on: true,
+        toggle: true,
+        collapsed: false,
+        css: { zIndex: 2000 },
+      };
+    }
 
+    gridOptions.toggle = (evt: any, ui: any) => {
+      userOptions.toggle?.(evt, ui);
+
+      if (!this.enableFullscreenToggle) {
+        return;
+      }
+
+      const grid = this.pqGridService.getGridInstance(this.gridId);
+      if (!grid) {
+        return;
+      }
+
+      if (ui.state === 'max') {
+        grid.option({ height: '100%', width: '100%' });
+      } else {
+        grid.option({ height: this.height, width: this.width });
+      }
+
+      grid.refresh();
+    };
+
+    this.pqGridService.createGrid(this.gridId, gridOptions);
     this.initialized = true;
   }
 
-  getGridInstance(): any {
-    if (!this.initialized) {
-      return null;
-    }
+  resizeGrid(): void {
+    this.pqGridService.resizeGrid(this.gridId);
+  }
 
+  getGridInstance(): any {
     return this.pqGridService.getGridInstance(this.gridId);
   }
 
-  addRow(rowData: any, rowIndxPage = 0): number {
-    return this.pqGridService.addRow(this.gridId, rowData, rowIndxPage);
-  }
-
-  getRowData(rowIndx: number): any {
-    return this.pqGridService.getRowData(this.gridId, rowIndx);
-  }
-
-  editRow(rowIndx: number): void {
-    this.pqGridService.editRow(this.gridId, rowIndx);
-  }
-
-  isEditing(): boolean {
-    return this.pqGridService.isEditing(this.gridId);
+  getGridData(): any[] {
+    return this.pqGridService.getGridData(this.gridId);
   }
 
   saveEditCell(): boolean {
     return this.pqGridService.saveEditCell(this.gridId);
   }
 
-  isValid(rowIndx: number): boolean {
-    return this.pqGridService.isValid(this.gridId, rowIndx);
-  }
-
-  isDirty(): boolean {
-    return this.pqGridService.isDirty(this.gridId);
-  }
-
-  commit(type: 'add' | 'update' | 'delete', rows: any[]): void {
-    this.pqGridService.commit(this.gridId, type, rows);
-  }
-
-  cancelEdit(rowIndx: number): void {
-    this.pqGridService.cancelEdit(this.gridId, rowIndx);
-  }
-
-  refreshGrid(): void {
-    if (this.initialized) {
-      this.pqGridService.refreshGrid(this.gridId);
-    }
+  validateGrid(): boolean {
+    return this.pqGridService.validateGrid(this.gridId);
   }
 
   updateData(data: any[]): void {
     this.gridData = data;
+    this.pqGridService.updateData(this.gridId, data);
+  }
 
-    if (this.initialized) {
-      this.pqGridService.updateData(this.gridId, data);
-    }
+  refreshGrid(): void {
+    this.pqGridService.refreshGrid(this.gridId);
   }
 
   exportToExcel(filename?: string): void {
-    if (this.initialized) {
-      this.pqGridService.exportToExcel(
-        this.gridId,
-        filename || this.exportFilename,
-      );
-    }
+    this.pqGridService.exportToExcel(this.gridId, filename || this.exportFilename);
   }
 
   exportToCsv(filename?: string): void {
-    if (this.initialized) {
-      this.pqGridService.exportToCsv(
-        this.gridId,
-        filename || this.exportFilename,
-      );
-    }
+    this.pqGridService.exportToCsv(this.gridId, filename || this.exportFilename);
   }
 
   printGrid(): void {
-    if (this.initialized) {
-      this.pqGridService.printGrid(this.gridId);
-    }
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (!this.initialized) {
-      return;
-    }
-
-    if (changes['gridData'] && !changes['gridData'].firstChange) {
-      this.pqGridService.updateData(this.gridId, this.gridData);
-    }
-
-    if (changes['columns'] && !changes['columns'].firstChange) {
-      this.pqGridService.destroyGrid(this.gridId);
-
-      setTimeout(() => {
-        this.createGrid();
-      }, 100);
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.pqGridService.destroyGrid(this.gridId);
-
-    this.initialized = false;
+    this.pqGridService.printGrid(this.gridId);
   }
 }

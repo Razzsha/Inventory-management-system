@@ -89,7 +89,6 @@ export class PurchaseListComponent implements OnInit, AfterViewInit, OnDestroy {
         $el.pqGrid('destroy');
       }
     } catch {
-      // No instance attached — nothing to destroy.
     }
     this.gridInitialized = false;
   }
@@ -99,8 +98,6 @@ export class PurchaseListComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    // Defensive: make sure nothing stale is already attached to this
-    // container before we build a new grid on top of it.
     this.destroyPqGrid();
     this.gridInitialized = true;
 
@@ -111,8 +108,8 @@ export class PurchaseListComponent implements OnInit, AfterViewInit, OnDestroy {
       height: 460,
       selectionModel: { type: 'row' },
       editModel: {
-        saveKey: 13,        // Enter saves the cell being edited
-        clicksToEdit: 2,    // double-click a cell to start editing
+        saveKey: 13,
+        clicksToEdit: 1,
       },
       colModel: [
         { title: 'PO Number', dataIndx: 'poNumber', width: 130, editable: false },
@@ -191,7 +188,6 @@ export class PurchaseListComponent implements OnInit, AfterViewInit, OnDestroy {
       ],
       dataModel: { data: this.filteredRows },
 
-      // fires after a cell edit is committed (Enter key or blur)
       dataChange: (evt: any, ui: any) => {
         const updated = ui.rowData;
         self.purchaseService.update(updated.id, updated);
