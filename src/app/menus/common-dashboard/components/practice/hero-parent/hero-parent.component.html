@@ -1,0 +1,18 @@
+<h1>parent component </h1>
+
+<p> Parent hero: {{heroName}}</p>
+
+<button (click)="changeHero()">
+  change hero
+</button>
+
+<hr>
+
+<app-hero-child
+  [heroName]="heroName"
+  (heroSelected)="onHeroSelected($event)">
+</app-hero-child>
+
+<hr>
+
+<h3> Selected hero: {{selectedHero}}</h3>

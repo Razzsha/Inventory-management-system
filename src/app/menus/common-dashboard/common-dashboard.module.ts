@@ -24,6 +24,8 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 import { PqGridComponent } from 'src/app/shared/components/pq-grid/pq-grid.component';
 import { TaskListComponent } from './components/task/task-list/task-list.component';
+import { HeroParentComponent } from './components/practice/hero-parent/hero-parent.component';
+import { HeroChildComponent } from './components/practice/hero-child/hero-child.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +46,9 @@ import { TaskListComponent } from './components/task/task-list/task-list.compone
     CreateSaleComponent,
     SaleListComponent,
     PqGridComponent,
-    TaskListComponent
+    TaskListComponent,
+    HeroParentComponent,
+    HeroChildComponent
   ],
   imports: [
     CommonModule,

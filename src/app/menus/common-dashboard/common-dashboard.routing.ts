@@ -10,6 +10,7 @@ import { InventoryListComponent } from './components/inventory/component/invento
 import { PurchaseListComponent } from './components/purchase/purchase-list/purchase-list.component';
 import { SaleListComponent } from './components/sales/sale-list/sale-list.component';
 import { TaskListComponent } from './components/task/task-list/task-list.component';
+import { HeroParentComponent } from './components/practice/hero-parent/hero-parent.component';
 
 const routes: Routes = [
   {
@@ -59,6 +60,10 @@ const routes: Routes = [
        {
         path: 'task',
         component: TaskListComponent,
+      },
+      {
+        path: 'practice',
+        component: HeroParentComponent,
       },
 
     ],

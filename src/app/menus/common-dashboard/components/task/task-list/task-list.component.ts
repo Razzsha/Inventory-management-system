@@ -120,7 +120,7 @@ export class TaskListComponent {
     },
     numberCell: {
         show: false
-    },   
+    },
     resizable: true
   };
 
@@ -159,7 +159,6 @@ export class TaskListComponent {
 
       format: 'yy-mm-dd',
       fmtDateEdit: 'yy-mm-dd',
-
       cls: 'pq-calendar pq-side-icon',
 
       editable: true,
